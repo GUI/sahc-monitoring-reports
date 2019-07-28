@@ -130,6 +130,12 @@ class Upload < ApplicationRecord
       :taken_at => exif.date_time_original,
     })
 
+    if(!photo.taken_at && exif.gps_date_stamp && exif.gps_time_stamp)
+      date = exif.gps_date_stamp
+      time = exif.gps_time_stamp
+      photo.taken_at = Time.use_zone("UTC") { Time.zone.strptime("#{date} #{time[0].to_i}:#{time[1].to_i}:#{format("%.3f", time[2])}", "%Y:%m:%d %H:%M:%S.%L") }
+    end
+
     if(exif.gps)
       photo.assign_attributes({
         :latitude => exif.gps.latitude,
