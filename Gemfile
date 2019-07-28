@@ -34,7 +34,7 @@ gem "htmlentities", "~> 4.3.4"
 # File Uploads
 gem "carrierwave", "~> 1.3.1"
 gem "carrierwave-postgresql-table", "~> 1.1.0"
-gem "mini_magick", "~> 4.9.2"
+gem "mini_magick", "~> 4.9.4"
 
 # Soft deletes
 gem "paranoia", "~> 2.4.1"
