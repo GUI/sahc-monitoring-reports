@@ -8,7 +8,7 @@ gem "rails", "~> 5.2.1"
 gem "foreman", "~> 0.85.0"
 
 # Server
-gem "puma", "~> 4.0.1"
+gem "puma", "~> 4.1.0"
 
 # PostgreSQL
 gem "pg", "~> 1.1.3"
@@ -20,7 +20,7 @@ gem "webpacker", "~> 4.0"
 gem "bootsnap", ">= 1.1.0", require: false
 
 # Error logging
-gem "rollbar", "~> 2.21.0"
+gem "rollbar", "~> 2.22.0"
 
 # EXIF extraction from JPEGs
 gem "exifr", "~> 1.3.5"
@@ -52,9 +52,9 @@ gem "prawn", "~> 2.2.2"
 gem "simple_form", "~> 4.1.0"
 
 # Authentication
-gem "devise", "~> 4.6.1"
+gem "devise", "~> 4.7.0"
 gem "omniauth", "~> 1.9.0"
-gem "omniauth-google-oauth2", "~> 0.7.0"
+gem "omniauth-google-oauth2", "~> 0.8.0"
 
 # Fix for CVE-2015-9284: https://github.com/omniauth/omniauth/pull/809
 gem "omniauth-rails_csrf_protection", "~> 0.1.0"
