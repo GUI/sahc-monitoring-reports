@@ -26,7 +26,7 @@ gem "rollbar", "~> 2.22.0"
 gem "exifr", "~> 1.3.5"
 
 # Unzip KMZ files
-gem "rubyzip", "~> 1.2.0", :require => "zip"
+gem "rubyzip", "~> 1.3.0", :require => "zip"
 
 # HTML encoding
 gem "htmlentities", "~> 4.3.4"
