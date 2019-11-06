@@ -52,7 +52,7 @@ gem "prawn", "~> 2.2.2"
 gem "simple_form", "~> 4.1.0"
 
 # Authentication
-gem "devise", "~> 4.7.0"
+gem "devise", "~> 4.7.1"
 gem "omniauth", "~> 1.9.0"
 gem "omniauth-google-oauth2", "~> 0.8.0"
 
