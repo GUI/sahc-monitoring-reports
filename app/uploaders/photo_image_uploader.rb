@@ -23,8 +23,8 @@ class PhotoImageUploader < CarrierWave::Uploader::Base
     manipulate! do |img|
       img.combine_options do |c|
         c.auto_orient
-        c.resize "600x600>"
-        c.quality 75
+        c.resize "700x700>"
+        c.quality 80
       end
 
       img
