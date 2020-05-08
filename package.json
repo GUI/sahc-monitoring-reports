@@ -10,7 +10,7 @@
     "datatables.net": "^1.10.19",
     "datatables.net-bs4": "^1.10.19",
     "fine-uploader": "^5.16.2",
-    "jquery": "^3.3.1",
+    "jquery": "^3.5.0",
     "jquery.dirtyforms": "^2.0.0",
     "rails-ujs": "^5.2.1",
     "resolve-url-loader": "^3.0.0",
