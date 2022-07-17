@@ -3,7 +3,12 @@ import $ from 'jquery';
 import qq from 'fine-uploader'
 import Rails from 'rails-ujs';
 
-window.setupUploader = function setupUploader(name, uuidInputName, overrides) {
+function setupUploader(element) {
+  const name = element.id;
+  const dataOptions = JSON.parse(element.getAttribute('data-uploader'));
+  const uuidInputName = dataOptions.uuidInputName;
+  const overrides = dataOptions.overrides;
+
   const $container = $('#' + name + '_container');
   const $toggle = $('#' + name + '_toggle');
   const $uuids = $('#' + name + '_uuids');
@@ -15,7 +20,7 @@ window.setupUploader = function setupUploader(name, uuidInputName, overrides) {
   });
 
   const options = {
-    element: document.getElementById(name),
+    element,
     template: 'qq-simple-thumbnails-template',
     request: {
       endpoint: '/uploads',
@@ -142,6 +147,11 @@ window.downloadReport = function(path) {
 
 $(document).ready(function() {
   $('form.report-form').dirtyForms();
+
+  const uploaders = document.querySelectorAll('[data-uploader]');
+  uploaders.forEach((uploader) => {
+    setupUploader(uploader);
+  });
 
   $(document).on('submit', 'form.report-form', function() {
     const $form = $(this);

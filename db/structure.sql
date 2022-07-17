@@ -126,8 +126,8 @@ CREATE TABLE public.photos (
     image_direction numeric(10,7),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    creator_id integer,
-    updater_id integer
+    created_by character varying,
+    updated_by character varying
 );
 
 
@@ -161,14 +161,14 @@ CREATE TABLE public.reports (
     photographer_name character varying(255),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    creator_id integer,
-    updater_id integer,
     upload_progress character varying(20),
     pdf_progress character varying(20),
     type public.report_type DEFAULT 'monitoring'::public.report_type NOT NULL,
     extra_signatures character varying(255)[],
     pdf character varying,
-    photo_starting_num integer DEFAULT 1 NOT NULL
+    photo_starting_num integer DEFAULT 1 NOT NULL,
+    created_by character varying,
+    updated_by character varying
 );
 
 
@@ -212,8 +212,8 @@ CREATE TABLE public.uploads (
     file_content_type character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    creator_id integer,
-    updater_id integer
+    created_by character varying,
+    updated_by character varying
 );
 
 
@@ -256,9 +256,9 @@ CREATE TABLE public.users (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
-    creator_id integer,
-    updater_id integer,
-    deleter_id integer
+    created_by character varying,
+    updated_by character varying,
+    deleted_by character varying
 );
 
 
@@ -454,6 +454,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181124025550'),
 ('20190728144143'),
 ('20200422042833'),
-('20200422215051');
+('20200422215051'),
+('20220717192141');
 
 

@@ -22,7 +22,7 @@ require "rexml/document"
 
 class Upload < ApplicationRecord
   # File attachments
-  mount_uploader :file, UploadFileUploader
+  include UploadFileUploader::Attachment.new(:file)
 
   # Callbacks
   before_validation :set_upload_metadata

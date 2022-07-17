@@ -29,18 +29,21 @@ gem "rubyzip", "~> 2.3.2", :require => "zip"
 gem "htmlentities", "~> 4.3.4"
 
 # File Uploads
-gem "carrierwave", "~> 1.3.1"
-gem "carrierwave-postgresql-table", "~> 1.1.0"
+gem "shrine", "~> 3.4.0"
+gem "aws-sdk-s3", "~> 1.114"
 gem "mini_magick", "~> 4.11.0"
+
+# Resizing image uploads
+gem "image_processing", "~> 1.12.2"
+
+# Image optimization/compression for file uploads
+gem "image_optimizer", "~> 1.9.0"
 
 # Soft deletes
 gem "paranoia", "~> 2.6.0"
 
-# Userstamping
-#
-# Use master to fix loading issues with delayed_job:
-# https://github.com/lowjoel/activerecord-userstamp/pull/12
-# gem "activerecord-userstamp", "~> 3.0.5", :git => "https://github.com/lowjoel/activerecord-userstamp.git"
+# Per-request storage for storing userstamp info.
+gem "request_store", "~> 1.5.1"
 
 # PDF generation
 gem "prawn", "~> 2.4.0"

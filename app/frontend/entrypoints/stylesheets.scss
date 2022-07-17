@@ -1,4 +1,3 @@
-$form-group-margin-bottom: 10px;
 $btn-font-size-sm: 0.7rem;
 $btn-font-size-lg: 0.9rem;
 $web-font-path: '/foobar';
@@ -6,7 +5,7 @@ $web-font-path: '/foobar';
 @import "bootswatch/dist/lumen/_variables";
 @import "bootstrap/scss/bootstrap";
 @import "../stylesheets/_bootswatch";
-@import "datatables.net-bs4/css/dataTables.bootstrap4";
+@import "datatables.net-bs5/css/dataTables.bootstrap5";
 @import "fine-uploader/fine-uploader/fine-uploader-new";
 @import "../stylesheets/_flower_spinner";
 @import "../stylesheets/simple_form-bootstrap/_simple_form-bootstrap";
@@ -90,19 +89,31 @@ table.dataTable.table thead .sorting {
   .fa-sort-down {
     display: none;
   }
+
+  .fa-sort {
+    display: block;
+  }
 }
 
-table.dataTable.table thead .sorting_asc {
+table.dataTable.table thead .sorting.sorting_asc {
   .fa-sort,
   .fa-sort-down {
     display: none;
   }
+
+  .fa-sort-up {
+    display: block;
+  }
 }
 
-table.dataTable.table thead .sorting_desc {
+table.dataTable.table thead .sorting.sorting_desc {
   .fa-sort,
   .fa-sort-up {
     display: none;
+  }
+
+  .fa-sort-down {
+    display: block;
   }
 }
 
@@ -248,14 +259,14 @@ abbr[title=required] {
 }
 
 .report-form .photo-form:before,
-.report-form .form-horizontal > .form-group:before {
+.report-form .form-horizontal > .row:before {
   content: "";
   width: 100%;
   display: block;
   border-bottom: 1px solid #e3e3e3;
   margin: 0px ($grid-gutter-width / 2) 0px ($grid-gutter-width / 2);
   @include media-breakpoint-up(sm) {
-    margin-bottom: $form-group-margin-bottom;
+    margin-bottom: 1rem;
   }
 }
 

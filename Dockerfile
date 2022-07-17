@@ -30,6 +30,16 @@ RUN apt-get update && \
   apt-get -y install rsync && \
   rm -rf /var/lib/apt/lists/*
 
+# For image resizing/manipulation.
+RUN apt-get update && \
+  apt-get -y install libvips && \
+  rm -rf /var/lib/apt/lists/*
+
+# For image optimization.
+RUN apt-get update && \
+  apt-get -y install jpegoptim optipng gifsicle pngquant && \
+  rm -rf /var/lib/apt/lists/*
+
 # Postgresql
 ARG POSTGRESQL_VERSION=13
 RUN set -x && \

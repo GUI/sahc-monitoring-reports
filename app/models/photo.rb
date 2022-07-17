@@ -54,7 +54,7 @@ class Photo < ApplicationRecord
   attr_accessor :upload_uuid
 
   # File attachments
-  mount_uploader :image, PhotoImageUploader
+  include PhotoImageUploader::Attachment.new(:image)
 
   # Callbacks
   before_validation :set_upload_metadata

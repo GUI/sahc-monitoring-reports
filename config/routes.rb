@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   end
 
   authenticate :user do
-    mount CarrierWave::PostgresqlTable::RackApp.new => "/uploads"
+    # mount CarrierWave::PostgresqlTable::RackApp.new => "/uploads"
   end
 
   root :to => "reports#index"

@@ -2,7 +2,7 @@
   <div class="col-sm-6">
     <h1><%= ENV.fetch("ORGANIZATION_NAME") %> Monitoring Reports</h1>
   </div>
-  <div class="col-sm-6 text-right">
+  <div class="col-sm-6 text-end">
     <%= link_to('<i class="fas fa-plus"></i>Create New Report'.html_safe, new_report_path, :class => "btn btn-primary btn-lg") %>
   </div>
 </div>

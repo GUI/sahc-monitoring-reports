@@ -1,33 +1,23 @@
-class PhotoImageUploader < CarrierWave::Uploader::Base
-  include CarrierWave::MiniMagick
-
-  version :default do
-    process :default_mogrify
+class PhotoImageUploader < ApplicationUploader
+  Attacher.validate do
+    validate_extension_inclusion [
+      "jpeg",
+      "jpg",
+    ]
+    validate_mime_type_inclusion [
+      "image/jpeg",
+    ]
   end
 
-  version :thumbnail, :from_version => :default do
-    process :resize_to_fit => [360, 360]
-  end
+  Attacher.derivatives do |original|
+    processing = ImageProcessing::Vips.source(original)
+    default = processing.resize_to_limit(700, 700).call
 
-  def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-  end
+    default_optimizer = ImageOptimizer.new(default.path, :quality => 80)
+    default_optimizer.optimize
 
-  def content_type_whitelist
-    %r{image/}
-  end
-
-  private
-
-  def default_mogrify
-    manipulate! do |img|
-      img.combine_options do |c|
-        c.auto_orient
-        c.resize "700x700>"
-        c.quality 80
-      end
-
-      img
-    end
+    {
+      :default => File.open(default_optimizer.path, "rb"),
+    }
   end
 end

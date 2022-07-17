@@ -35,7 +35,7 @@ class Report < ApplicationRecord
   attr_accessor :upload_uuids
 
   # File attachments
-  mount_uploader :pdf, PdfUploader
+  include PdfUploader::Attachment.new(:pdf)
 
   # Validations
   validates :type, :presence => true, :inclusion => { :in => TYPES.keys }
@@ -256,7 +256,7 @@ class Report < ApplicationRecord
     # being set).
     if self.changes.keys != ["pdf"]
       if self.pdf.present?
-        self.remove_pdf!
+        self.pdf = nil
       end
     end
   end

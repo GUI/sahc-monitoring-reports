@@ -1,9 +1,12 @@
 import '../font_awesome_icons';
 import '../reports';
-import 'datatables.net';
-import 'datatables.net-bs4';
+import * as dataTablesInit from 'datatables.net';
+import * as dataTablesBs5Init from 'datatables.net-bs5';
 import Rails from 'rails-ujs';
 import $ from 'jquery';
+
+dataTablesInit(window, $);
+dataTablesBs5Init(window, $);
 
 Rails.start();
 
