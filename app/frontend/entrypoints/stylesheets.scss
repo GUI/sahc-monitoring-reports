@@ -1,12 +1,13 @@
 $form-group-margin-bottom: 10px;
 $btn-font-size-sm: 0.7rem;
 $btn-font-size-lg: 0.9rem;
+$web-font-path: '/foobar';
 
-@import "~bootswatch/dist/lumen/_variables";
-@import "~bootstrap/scss/bootstrap";
-@import "~bootswatch/dist/lumen/_bootswatch";
-@import "~datatables.net-bs4/css/dataTables.bootstrap4";
-@import "~fine-uploader/fine-uploader/fine-uploader-new";
+@import "bootswatch/dist/lumen/_variables";
+@import "bootstrap/scss/bootstrap";
+@import "../stylesheets/_bootswatch";
+@import "datatables.net-bs4/css/dataTables.bootstrap4";
+@import "fine-uploader/fine-uploader/fine-uploader-new";
 @import "../stylesheets/_flower_spinner";
 @import "../stylesheets/simple_form-bootstrap/_simple_form-bootstrap";
 

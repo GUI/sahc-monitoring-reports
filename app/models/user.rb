@@ -29,10 +29,10 @@
 
 class User < ApplicationRecord
   acts_as_paranoid
-  model_stamper
-  stampable(:optional => true)
+  # model_stamper
+  # stampable(:optional => true)
 
-  devise :omniauthable, :trackable
+  devise :omniauthable, :trackable, :omniauth_providers => [:google_oauth2]
 
   # Validations
   validates :provider, :presence => true

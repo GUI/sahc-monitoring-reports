@@ -1,0 +1,6 @@
+.git
+log/*
+tmp/*
+!tmp/.keep
+!tmp/pids/.keep
+node_modules

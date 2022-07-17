@@ -3,34 +3,27 @@
 set -e -u -x
 
 if [[ -z "${RAILS_ENV:-}" || "${RAILS_ENV:-}" == "development" ]]; then
-  # Ensure gems are installed.
-  bundle install
-
-  # Move cache to non-shared drive for better performance.
-  rm -rf ./tmp/cache
-  mkdir -p /usr/local/rails_tmp_cache
-  ln -s /usr/local/rails_tmp_cache ./tmp/cache
-
-  # Install NPM dependencies.
-  rm -rf ./node_modules
-  mkdir -p /usr/local/node_modules
-  ln -s /usr/local/node_modules ./node_modules
-  yarn install
-
   # Create the database from db/structure.sql if it doesn't exist.
-  export PGPASSWORD="$DB_PASSWORD"
-  export PGHOST="$DB_HOSTNAME"
-  export PGPORT="$DB_PORT"
-  export PGUSER="$DB_USERNAME"
-  export PGDATABASE="$DB_NAME"
-  until pg_isready; do
-    >&2 echo "Waiting for postgresql..."
-    sleep 1
-  done
-  psql -c 'SELECT COUNT(*) FROM schema_migrations' || if [ -f db/structure.sql ]; then bundle exec rake db:setup; else bundle exec rake db:create && bundle exec rake db:migrate; fi
+  if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
+    { set +x; } 2>/dev/null
+    PGPASSWORD="$DB_PASSWORD"
+    export PGPASSWORD
+    set -x
 
-  # Migrate and seed database
-  bundle exec rake db:migrate db:seed
+    if [ -z "$(env PGHOST="$DB_HOST" PGPORT="$DB_PORT" PGDATABASE="$DB_NAME" PGUSER="$DB_USERNAME" psql -X -A -t -q -c "SELECT to_regclass('schema_migrations')")" ]; then
+      unset PGPASSWORD
+
+      # Create from db/structure.sql if it exists, otherwise if this is a brand
+      # new app, create from migrations.
+      if [ -f db/structure.sql ]; then
+        env DB_STATEMENT_TIMEOUT=0 bundle exec rake db:setup --trace
+      else
+        env DB_STATEMENT_TIMEOUT=0 bundle exec rake db:create db:migrate --trace
+      fi
+    fi
+
+    unset PGPASSWORD
+  fi
 fi
 
-bundle exec puma -C config/puma.rb
+exec bundle exec puma -C config/puma.rb

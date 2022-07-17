@@ -3,7 +3,7 @@
     <h3 class="card-header bg-primary text-white">Sign In</h3>
     <div class="card-body">
       <p>Sign in with your <%= "#{ENV["ALLOWED_EMAIL_DOMAIN"]} Google Account".strip %>:</p>
-      <%= link_to('<span class="sr-only">Sign in with Google</span>'.html_safe, omniauth_authorize_path(resource_name, :google_oauth2), :method => :post, :class => "google-signin-btn") %><br />
+      <%= link_to('<span class="visually-hidden">Sign in with Google</span>'.html_safe, omniauth_authorize_path(resource_name, :google_oauth2), :method => :post, :class => "google-signin-btn") %><br />
     </div>
   </div>
 </div>
