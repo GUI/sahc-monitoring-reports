@@ -46,13 +46,7 @@
       <% next unless(pf.object.persisted?) %>
       <div class="row form-group photo-form">
         <div class="col-sm-4 text-center">
-          <% if pf.object.image %>
-            <%= image_tag(pf.object.image(:default).url, :class => "img-fluid center-block", :loading => "lazy") %>
-            <div class="photo-num">Photo <%= @report.photo_starting_num + pf.index %></div>
-            <%= link_to("Download original", pf.object.image.url(:response_content_disposition => ContentDisposition.attachment(pf.object.image.original_filename))) %><br>
-          <% else %>
-            <em>Missing photo</em><br>
-          <% end %>
+          <%= render("photo", :photo => photo, :index => index) %>
           <div id="uploader_<%= pf.object.id %>_toggle">
             <%= link_to("Replace photo", "#") %>
           </div>

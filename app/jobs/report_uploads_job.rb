@@ -1,11 +1,10 @@
 class ReportUploadsJob < ApplicationJob
-  def perform(report_id, upload_uuids, current_user_id)
+  def perform(report_id, upload_uuids, current_user_email)
     Upload.transaction do
       begin
         report = Report.find(report_id)
 
-        original_stamper = ActiveRecord::Userstamp.config.default_stamper_class.stamper
-        ActiveRecord::Userstamp.config.default_stamper_class.stamper = current_user_id
+        RequestStore.store[:current_user_email] = current_user_email
 
         upload_uuids.each do |uuid|
           upload = Upload.find_by!(:uuid => uuid)
@@ -23,10 +22,6 @@ class ReportUploadsJob < ApplicationJob
         end
 
         raise e
-      ensure
-        if original_stamper
-          ActiveRecord::Userstamp.config.default_stamper_class.stamper = original_stamper
-        end
       end
     end
   end

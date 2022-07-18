@@ -264,7 +264,7 @@ class Report < ApplicationRecord
   def handle_uploads
     if(self.upload_uuids.present?)
       self.update_column(:upload_progress, "pending")
-      ReportUploadsJob.perform_later(self.id, self.upload_uuids.uniq, ActiveRecord::Userstamp.config.default_stamper_class.stamper.id)
+      ReportUploadsJob.perform_later(self.id, self.upload_uuids.uniq, RequestStore.store[:current_user_email])
     end
   rescue => e
     self.update_column(:upload_progress, "failure")

@@ -116,7 +116,7 @@ CREATE TABLE public.photos (
     id integer NOT NULL,
     report_id integer NOT NULL,
     caption text,
-    image character varying(255) NOT NULL,
+    image character varying(255),
     image_size integer NOT NULL,
     image_content_type character varying(255) NOT NULL,
     taken_at timestamp without time zone,
@@ -127,7 +127,8 @@ CREATE TABLE public.photos (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     created_by character varying,
-    updated_by character varying
+    updated_by character varying,
+    image_data jsonb NOT NULL
 );
 
 
@@ -168,7 +169,8 @@ CREATE TABLE public.reports (
     pdf character varying,
     photo_starting_num integer DEFAULT 1 NOT NULL,
     created_by character varying,
-    updated_by character varying
+    updated_by character varying,
+    pdf_data jsonb
 );
 
 
@@ -207,13 +209,14 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.uploads (
     id integer NOT NULL,
     uuid character varying(36) NOT NULL,
-    file character varying(255) NOT NULL,
+    file character varying(255),
     file_size integer NOT NULL,
     file_content_type character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     created_by character varying,
-    updated_by character varying
+    updated_by character varying,
+    file_data jsonb NOT NULL
 );
 
 
@@ -455,6 +458,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190728144143'),
 ('20200422042833'),
 ('20200422215051'),
-('20220717192141');
+('20220717192141'),
+('20220717202538');
 
 

@@ -41,6 +41,7 @@ h1 {
 .qq-upload-button {
   background-color: $primary;
   border-color: darken($primary, 5%);
+  width: auto;
 }
 
 .submit {

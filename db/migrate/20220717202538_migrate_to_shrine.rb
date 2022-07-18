@@ -4,7 +4,6 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
       {
         :model => Photo,
         :column_name => :image,
-        :derivatives => [:default, :thumbnail],
       },
       {
         :model => Upload,
@@ -56,16 +55,20 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
               end
             end
 
-            original_file.close
-            large = ImageProcessing::Vips
-              .source(original_file)
-              .convert("jpeg")
-              .resize_to_limit(3000, 3000)
-              .call
-            original_file.unlink
+            if model == Photo
+              original_file.close
+              large = ImageProcessing::Vips
+                .loader(autorot: true)
+                .source(original_file)
+                .convert("jpeg")
+                .resize_to_limit(3000, 3000)
+                .call
+              original_file.unlink
+              original_file = large
+            end
 
             attacher = record.send("#{options[:attachment_name]}_attacher")
-            attacher.attach(large, metadata: {
+            attacher.attach(original_file, metadata: {
               "filename" => filename,
             })
             attacher.create_derivatives
@@ -76,6 +79,11 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
     end
 
     changes.each do |options|
+      if options.fetch(:model) != Report
+        change_column_null options.fetch(:model).table_name, options.fetch(:attachment_column_name), false
+        change_column_null options.fetch(:model).table_name, options.fetch(:column_name), true
+      end
+
       # remove_column options.fetch(:model).table_name, options.fetch(:column_name)
     end
   end

@@ -51,8 +51,8 @@ class Upload < ApplicationRecord
   private
 
   def set_upload_metadata
-    if(self.file.present? && self.file_cache.present?)
-      self.file_content_type = self.file.content_type
+    if self.file
+      self.file_content_type = self.file.mime_type
       self.file_size = self.file.size
     end
   end
@@ -102,33 +102,31 @@ class Upload < ApplicationRecord
 
   def build_photo_from_jpeg
     photo = nil
-    begin
-      # Create a tempfile inside a temporary directory (rather than using
-      # Tempfile), so that the filename matches the original filename.
-      dir = Dir.mktmpdir
-      image = File.open(File.join(dir, self.file.file.filename), "wb+")
-      IO.copy_stream(self.file.file, image)
-      image.rewind
-      image.fsync
-
-      photo = build_photo(image)
-    ensure
-      image.close if(image)
-      FileUtils.remove_entry(dir) if(dir)
+    self.file.open do
+      photo = build_photo(self.file.tempfile, filename: self.file.original_filename)
     end
 
     photo
   end
 
-  def build_photo(image)
-    image.rewind
-    exif = EXIFR::JPEG.new(image)
-    image.rewind
+  def build_photo(image, filename: nil)
+    large = ImageProcessing::Vips
+      .loader(autorot: true)
+      .source(image)
+      .convert("jpeg")
+      .resize_to_limit(3000, 3000)
+      .call
+
+    exif = EXIFR::JPEG.new(large)
 
     photo = Photo.new({
-      :image => image,
+      :image => large,
       :taken_at => exif.date_time_original,
     })
+
+    if filename
+      photo.image.metadata["filename"] = filename
+    end
 
     if(!photo.taken_at && exif.gps_date_stamp && exif.gps_time_stamp)
       date = exif.gps_date_stamp

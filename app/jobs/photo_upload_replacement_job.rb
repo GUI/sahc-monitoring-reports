@@ -1,11 +1,10 @@
 class PhotoUploadReplacementJob < ApplicationJob
-  def perform(photo_id, upload_uuid, current_user_id)
+  def perform(photo_id, upload_uuid, current_user_email)
     Upload.transaction do
       begin
         photo = Photo.find(photo_id)
 
-        original_stamper = ActiveRecord::Userstamp.config.default_stamper_class.stamper
-        ActiveRecord::Userstamp.config.default_stamper_class.stamper = current_user_id
+        RequestStore.store[:current_user_email] = current_user_email
 
         upload = Upload.find_by!(:uuid => upload_uuid)
         new_photo = upload.build_photos.first
@@ -28,10 +27,6 @@ class PhotoUploadReplacementJob < ApplicationJob
         end
 
         raise e
-      ensure
-        if original_stamper
-          ActiveRecord::Userstamp.config.default_stamper_class.stamper = original_stamper
-        end
       end
     end
   end

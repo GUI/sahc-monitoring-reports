@@ -116,7 +116,7 @@ class Photo < ApplicationRecord
   def handle_upload_replacement
     if(self.upload_uuid.present?)
       self.report.update_column(:upload_progress, "pending")
-      PhotoUploadReplacementJob.perform_later(self.id, self.upload_uuid, ActiveRecord::Userstamp.config.default_stamper_class.stamper.id)
+      PhotoUploadReplacementJob.perform_later(self.id, self.upload_uuid, RequestStore.store[:current_user_email])
     end
   end
 

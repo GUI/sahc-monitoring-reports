@@ -1,0 +1,7 @@
+<% if photo.image? %>
+  <%= image_tag(photo.image(:default).url, :class => "img-fluid center-block", :loading => "lazy", :width => photo.image(:default).width, :height => photo.image(:default).height) %>
+  <div class="photo-num">Photo <%= @report.photo_starting_num + index %></div>
+  <%= link_to("Download", photo.image.url(:response_content_disposition => ContentDisposition.attachment(photo.image.original_filename))) %><br>
+<% else %>
+  <em>Missing photo</em>
+<% end %>
