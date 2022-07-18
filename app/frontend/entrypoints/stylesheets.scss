@@ -207,12 +207,17 @@ abbr[title=required] {
   .row .col-sm-4.photo {
     font-weight: normal;
     text-align: center;
+
+    .img-fluid {
+      max-height: 360px;
+      max-width: 360px;
+    }
   }
 }
 
 .photo-metadata {
   color: #777;
-  font-size: 12px;
+  font-size: 0.9rem;
 }
 
 .button-actions {

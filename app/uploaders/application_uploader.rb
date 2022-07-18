@@ -3,7 +3,6 @@ class ApplicationUploader < Shrine
   plugin :cached_attachment_data
   plugin :derivatives, :create_on_promote => true
   plugin :determine_mime_type
-  plugin :signature
   plugin :pretty_location
   plugin :remove_attachment
   plugin :remove_invalid

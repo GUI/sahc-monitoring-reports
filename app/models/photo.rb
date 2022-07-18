@@ -121,8 +121,8 @@ class Photo < ApplicationRecord
   end
 
   def set_upload_metadata
-    if(self.image.present? && self.image_cache.present?)
-      self.image_content_type = self.image.content_type
+    if self.image
+      self.image_content_type = self.image.mime_type
       self.image_size = self.image.size
     end
   end

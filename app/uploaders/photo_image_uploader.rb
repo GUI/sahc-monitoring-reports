@@ -1,4 +1,6 @@
 class PhotoImageUploader < ApplicationUploader
+  plugin :store_dimensions, :analyzer => :ruby_vips
+
   Attacher.validate do
     validate_extension_inclusion [
       "jpeg",

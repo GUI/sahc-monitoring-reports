@@ -65,12 +65,10 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
             original_file.unlink
 
             attacher = record.send("#{options[:attachment_name]}_attacher")
-            attacher.assign(large,
-              metadata: {
-                "filename" => filename,
-              },
-            )
-            attacher.finalize
+            attacher.attach(large, metadata: {
+              "filename" => filename,
+            })
+            attacher.create_derivatives
             attacher.persist
           end
         end

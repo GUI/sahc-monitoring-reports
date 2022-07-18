@@ -5,11 +5,7 @@ class ReportPdfJob < ApplicationJob
         report = Report.find(report_id)
 
         report.generate_pdf
-        Report.without_stamps do
-          report.save!(:touch => false)
-        end
-
-        report.update_column(:pdf_progress, nil)
+        report.save!(:touch => false)
       rescue => e
         if report
           report.update_column(:pdf_progress, "failure")

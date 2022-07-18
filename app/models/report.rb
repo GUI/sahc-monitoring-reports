@@ -172,8 +172,10 @@ class Report < ApplicationRecord
             col = index % cols
 
             pdf.grid(row, col).bounding_box do
-              if(photo.image? && photo.image.file.last_modified)
-                pdf.image photo.image.default.file.to_tempfile, :fit => [pdf.bounds.width, pdf.bounds.width / photo_aspect_ratio], :position => :center
+              if photo.image
+                photo.image(:default).open do
+                  pdf.image photo.image(:default).tempfile, :fit => [pdf.bounds.width, pdf.bounds.width / photo_aspect_ratio], :position => :center
+                end
               end
               pdf.rectangle [0, pdf.cursor], pdf.bounds.width, 6
               pdf.fill
@@ -237,10 +239,10 @@ class Report < ApplicationRecord
       end
     end
 
-    io = UploadStringIO.new(pdf.render)
-    io.original_filename = "#{self.display_name}.pdf"
-
-    self.pdf = io
+    self.pdf_attacher.attach(StringIO.new(pdf.render), metadata: {
+      "filename" => "#{self.display_name}.pdf",
+    })
+    self.pdf_progress = nil
   end
 
   private
@@ -254,10 +256,8 @@ class Report < ApplicationRecord
   def clear_cached_pdf
     # Clear the cached PDF on any changes (except for when the PDF is actually
     # being set).
-    if self.changes.keys != ["pdf"]
-      if self.pdf.present?
-        self.pdf = nil
-      end
+    if self.pdf_data && (self.changes.keys - ["pdf_data", "pdf_progress"]).any?
+      self.pdf = nil
     end
   end
 

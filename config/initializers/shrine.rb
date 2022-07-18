@@ -18,5 +18,3 @@ Shrine.storages = {
 if Rails.env.development? || Rails.env.test?
   Shrine.plugin :instrumentation
 end
-
-Shrine.plugin :derivatives, :create_on_promote => true
