@@ -53,7 +53,7 @@ gem "simple_form", "~> 5.0.0"
 
 # Authentication
 gem "devise", "~> 4.7.1"
-gem "omniauth", "~> 1.9.0"
+gem "omniauth", "~> 1.9.2"
 gem "omniauth-google-oauth2", "~> 0.8.0"
 
 # Fix for CVE-2015-9284: https://github.com/omniauth/omniauth/pull/809
