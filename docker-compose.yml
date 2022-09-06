@@ -21,7 +21,7 @@ services:
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: dev_password
-      DB_NAME: sahc_development
+      DB_NAME: sahc_monitoring_reports_development
       VITE_RUBY_HOST: vite
     volumes:
       - .:/app
@@ -43,26 +43,26 @@ services:
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: dev_password
-      DB_NAME: sahc_development
+      DB_NAME: sahc_monitoring_reports_development
       VITE_RUBY_HOST: 0.0.0.0
     volumes:
       - .:/app
       - vite_dev_cache:/dev-cache
     depends_on:
       - db
-  delayed_job:
+  worker:
     build:
       context: .
       args:
         BUNDLE_INSTALL_ARGS: ""
         YARN_INSTALL_ARGS: ""
-    command: bundle exec rake jobs:work
+    command: bundle exec rake qc:work
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: dev_password
-      DB_NAME: sahc_development
+      DB_NAME: sahc_monitoring_reports_development
     volumes:
       - .:/app
       - worker_dev_cache:/dev-cache

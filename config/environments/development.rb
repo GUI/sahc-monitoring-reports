@@ -71,6 +71,6 @@ Rails.application.configure do
 
   if ENV["RAILS_ENABLE_DELAYED_JOB"].present?
     # Use a real queuing backend for Active Job (and separate queues per environment)
-    config.active_job.queue_adapter = :delayed_job
+    config.active_job.queue_adapter = :queue_classic
   end
 end

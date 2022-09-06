@@ -10,6 +10,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: heroku_ext; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA heroku_ext;
+
+
+--
 -- Name: report_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -17,6 +24,17 @@ CREATE TYPE public.report_type AS ENUM (
     'baseline',
     'monitoring'
 );
+
+
+--
+-- Name: queue_classic_notify(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.queue_classic_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN
+  perform pg_notify(new.q_name, ''); RETURN NULL;
+END $$;
 
 
 SET default_tablespace = '';
@@ -70,45 +88,6 @@ ALTER SEQUENCE public.carrierwave_files_id_seq OWNED BY public.carrierwave_files
 
 
 --
--- Name: delayed_jobs; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.delayed_jobs (
-    id integer NOT NULL,
-    priority integer DEFAULT 0 NOT NULL,
-    attempts integer DEFAULT 0 NOT NULL,
-    handler text NOT NULL,
-    last_error text,
-    run_at timestamp without time zone,
-    locked_at timestamp without time zone,
-    failed_at timestamp without time zone,
-    locked_by character varying,
-    queue character varying,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
-
---
--- Name: delayed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.delayed_jobs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: delayed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
-
-
---
 -- Name: photos; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -149,6 +128,43 @@ CREATE SEQUENCE public.photos_id_seq
 --
 
 ALTER SEQUENCE public.photos_id_seq OWNED BY public.photos.id;
+
+
+--
+-- Name: queue_classic_jobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.queue_classic_jobs (
+    id bigint NOT NULL,
+    q_name text NOT NULL,
+    method text NOT NULL,
+    args jsonb NOT NULL,
+    locked_at timestamp with time zone,
+    locked_by integer,
+    created_at timestamp with time zone DEFAULT now(),
+    scheduled_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT queue_classic_jobs_method_check CHECK ((length(method) > 0)),
+    CONSTRAINT queue_classic_jobs_q_name_check CHECK ((length(q_name) > 0))
+);
+
+
+--
+-- Name: queue_classic_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.queue_classic_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: queue_classic_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.queue_classic_jobs_id_seq OWNED BY public.queue_classic_jobs.id;
 
 
 --
@@ -292,17 +308,17 @@ ALTER TABLE ONLY public.carrierwave_files ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
--- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
-
-
---
 -- Name: photos id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.photos ALTER COLUMN id SET DEFAULT nextval('public.photos_id_seq'::regclass);
+
+
+--
+-- Name: queue_classic_jobs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.queue_classic_jobs ALTER COLUMN id SET DEFAULT nextval('public.queue_classic_jobs_id_seq'::regclass);
 
 
 --
@@ -343,19 +359,19 @@ ALTER TABLE ONLY public.carrierwave_files
 
 
 --
--- Name: delayed_jobs delayed_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.delayed_jobs
-    ADD CONSTRAINT delayed_jobs_pkey PRIMARY KEY (id);
-
-
---
 -- Name: photos photos_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.photos
     ADD CONSTRAINT photos_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: queue_classic_jobs queue_classic_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.queue_classic_jobs
+    ADD CONSTRAINT queue_classic_jobs_pkey PRIMARY KEY (id);
 
 
 --
@@ -383,10 +399,17 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: delayed_jobs_priority; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_qc_on_name_only_unlocked; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX delayed_jobs_priority ON public.delayed_jobs USING btree (priority, run_at);
+CREATE INDEX idx_qc_on_name_only_unlocked ON public.queue_classic_jobs USING btree (q_name, id) WHERE (locked_at IS NULL);
+
+
+--
+-- Name: idx_qc_on_scheduled_at_only_unlocked; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_qc_on_scheduled_at_only_unlocked ON public.queue_classic_jobs USING btree (scheduled_at, id) WHERE (locked_at IS NULL);
 
 
 --
@@ -425,6 +448,13 @@ CREATE UNIQUE INDEX unique_schema_migrations ON public.schema_migrations USING b
 
 
 --
+-- Name: queue_classic_jobs queue_classic_notify; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER queue_classic_notify AFTER INSERT ON public.queue_classic_jobs FOR EACH ROW EXECUTE FUNCTION public.queue_classic_notify();
+
+
+--
 -- Name: photos fk_rails_ff8adce01c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -459,6 +489,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200422042833'),
 ('20200422215051'),
 ('20220717192141'),
-('20220717202538');
+('20220717202538'),
+('20220906011129'),
+('20220906011130'),
+('20220906011131'),
+('20220906011132'),
+('20220906011133'),
+('20220906034202');
 
 

@@ -5,10 +5,10 @@ ruby "~> 3.1.2"
 gem "rails", "~> 7.0.3"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.4.1"
+gem "pg", "~> 1.4.3"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 5.6.4"
+gem "puma", "~> 5.6.5"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -17,7 +17,7 @@ gem "bootsnap", require: false
 gem "rollbar", "~> 3.3.1"
 
 # Assets
-gem "vite_rails", "~> 3.0.10"
+gem "vite_rails", "~> 3.0.12"
 
 # EXIF extraction from JPEGs
 gem "exifr", "~> 1.3.5"
@@ -54,7 +54,7 @@ gem "simple_form", "~> 5.1.0"
 # Authentication
 gem "devise", "~> 4.8.1"
 gem "omniauth", "~> 2.1.0"
-gem "omniauth-google-oauth2", "~> 1.0.1"
+gem "omniauth-google-oauth2", "~> 1.1.1"
 
 # Fix for CVE-2015-9284: https://github.com/omniauth/omniauth/pull/809
 gem "omniauth-rails_csrf_protection", "~> 1.0.1"
@@ -63,8 +63,7 @@ gem "omniauth-rails_csrf_protection", "~> 1.0.1"
 gem "gretel", "~> 4.4.0"
 
 # Background jobs
-gem "delayed_job_active_record", "~> 4.1.1"
-gem "daemons", "~> 1.3.1"
+gem "queue_classic", "~> 4.0.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -74,7 +73,7 @@ group :development, :test do
   gem "annotate", "~> 3.2.0"
 
   # Development configuration
-  gem "dotenv-rails", "~> 2.7.2"
+  gem "dotenv-rails", "~> 2.8.1"
 end
 
 group :development do

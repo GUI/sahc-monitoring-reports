@@ -1,4 +1,4 @@
-FROM ruby:3.1.2-bullseye
+FROM ruby:3.1-bullseye
 
 ENV \
   BUNDLE_JOBS=4 \
