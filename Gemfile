@@ -47,6 +47,9 @@ gem "request_store", "~> 1.5.1"
 
 # PDF generation
 gem "prawn", "~> 2.4.0"
+# Required for prawn until > 2.4 is released for Ruby 3.1 compatibility:
+# https://github.com/prawnpdf/prawn/issues/1235
+gem "matrix"
 
 # Form layouts
 gem "simple_form", "~> 5.1.0"
