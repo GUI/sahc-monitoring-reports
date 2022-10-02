@@ -16,7 +16,8 @@ else
     :access_key_id => ENV.fetch("S3_ACCESS_KEY_ID"),
     :secret_access_key => ENV.fetch("S3_SECRET_ACCESS_KEY"),
     :bucket => ENV.fetch("S3_BUCKET"),
-    :prefix => "#{Rails.env}",
+    # :prefix => "#{Rails.env}",
+    :prefix => "development", # FIXME
   }
   Shrine.storages = {
     :cache => Shrine::Storage::S3.new(**options.merge(:prefix => "#{options.fetch(:prefix)}/tmp")),
