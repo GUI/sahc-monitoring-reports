@@ -36,9 +36,6 @@
         </div>
       </div>
     </div>
-    <script>
-      // setupUploader('uploader', 'report[upload_uuids][]');
-    </script>
   </div>
 
   <% unless(@report.new_record?) %>
@@ -51,19 +48,9 @@
             <%= link_to("Replace photo", "#") %>
           </div>
           <div id="uploader_<%= pf.object.id %>_container" style="display: none;">
-            <div id="uploader_<%= pf.object.id %>" data-uploader="<%= { "uuidInputName" => "report[photos_attributes][#{pf.options[:child_index]}][upload_uuid]", "overrides" => { "multiple" => false, "validation" => { "allowedExtensions" => ["heic", "jpg", "jpeg", "kmz"] } } }.to_json %>"></div>
+            <div id="uploader_<%= pf.object.id %>" data-uploader="<%= { "uuidInputName" => "report[photos_attributes][#{pf.options[:child_index]}][upload_uuid]", "overrides" => { "multiple" => false, "validation" => { "allowedExtensions" => ["heic", "jpg", "jpeg"] } } }.to_json %>"></div>
             <div id="uploader_<%= pf.object.id %>_uuids"></div>
           </div>
-          <script>
-            /*
-            setupUploader('uploader_<%= pf.object.id %>', 'report[photos_attributes][<%= pf.options[:child_index] %>][upload_uuid]', {
-              multiple: false,
-              validation: {
-                allowedExtensions: ['heic', 'jpg', 'jpeg', 'kmz'],
-              },
-            });
-           */
-          </script>
         </div>
         <div class="col-sm-5"><%= pf.input(:caption, :as => :text, :input_html => { :rows => 8 }) %></div>
         <div class="col-sm-3">
