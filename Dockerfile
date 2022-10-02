@@ -18,7 +18,7 @@ ENV \
   PORT=3000 \
   DEV_CACHE_DIR=/dev-cache
 
-# Determine Debian version
+# Build dependencies
 RUN apt-get update && \
   apt-get -y install build-essential curl gpg lsb-release && \
   rm -rf /var/lib/apt/lists/*
@@ -35,7 +35,7 @@ RUN apt-get update && \
 
 # For image resizing/manipulation.
 RUN apt-get update && \
-  apt-get -y install libvips && \
+  apt-get -y install file libvips && \
   rm -rf /var/lib/apt/lists/*
 
 # For image optimization.
@@ -123,7 +123,7 @@ COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg
 ARG POSTGRESQL_VERSION=14
 RUN set -x && \
   apt-get update && \
-  apt-get -y install libvips && \
+  apt-get -y install file libvips && \
   apt-get -y install jpegoptim optipng gifsicle pngquant && \
   apt-get -y install "postgresql-client-${POSTGRESQL_VERSION}" && \
   pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
