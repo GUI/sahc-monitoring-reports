@@ -25,7 +25,7 @@ class Upload < ApplicationRecord
   include UploadFileUploader::Attachment.new(:file)
 
   # Callbacks
-  before_validation :set_upload_metadata
+  before_validation :set_file_metadata
 
   # Validations
   validates :uuid, :presence => true
@@ -39,7 +39,7 @@ class Upload < ApplicationRecord
     case(self.file_content_type)
     when "application/vnd.google-earth.kmz"
       photos += build_photos_from_kmz
-    when "image/jpeg"
+    when "image/heic", "image/jpeg"
       photos << build_photo_from_jpeg
     else
       raise "Unknown extension"

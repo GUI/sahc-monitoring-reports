@@ -14,16 +14,16 @@
     <%= f.input :photo_starting_num %>
     <%= f.input :extra_signatures, :as => :array %>
     <% if(@report.photos.present?) %>
-      <div class="row form-group" id="uploader_toggle">
+      <div class="row mb-3 form-group" id="uploader_toggle">
         <div class="col-sm-8 offset-sm-4">
           <%= link_to('<i class="fas fa-plus"></i>Add additional new photos'.html_safe, "#") %>
         </div>
       </div>
     <% end %>
-    <div class="row form-group" id="uploader_container" style="<%= "display: none" if(@report.photos.present?) %>">
+    <div class="row mb-3 form-group" id="uploader_container" style="<%= "display: none" if(@report.photos.present?) %>">
       <div class="col-sm-4 form-control-label">
         <label for="property"><abbr title="required">*</abbr> Photos</label>
-        <div class="form-text text-muted">Upload either JPEG files or KMZ files.</div>
+        <div class="form-text text-muted">Upload JPEG, HEIC, or KMZ files.</div>
       </div>
       <div class="col-sm-8">
         <div id="uploader" data-uploader="<%= { "uuidInputName" => 'report[upload_uuids][]' }.to_json %>"></div>
@@ -44,14 +44,14 @@
   <% unless(@report.new_record?) %>
     <%= f.simple_fields_for(:photos, :wrapper => :inline_form) do |pf| %>
       <% next unless(pf.object.persisted?) %>
-      <div class="row form-group photo-form">
+      <div class="row mb-3 form-group photo-form">
         <div class="col-sm-4 text-center">
-          <%= render("photo", :photo => photo, :index => index) %>
+          <%= render("photo", :photo => pf.object, :index => pf.index) %>
           <div id="uploader_<%= pf.object.id %>_toggle">
             <%= link_to("Replace photo", "#") %>
           </div>
           <div id="uploader_<%= pf.object.id %>_container" style="display: none;">
-            <div id="uploader_<%= pf.object.id %>" data-uploader="<%= { "uuidInputName" => "report[photos_attributes][#{pf.options[:child_index]}][upload_uuid]", "overrides" => { "multiple" => false, "validation" => { "allowedExtensions" => ["jpg", "jpeg"] } } }.to_json %>"></div>
+            <div id="uploader_<%= pf.object.id %>" data-uploader="<%= { "uuidInputName" => "report[photos_attributes][#{pf.options[:child_index]}][upload_uuid]", "overrides" => { "multiple" => false, "validation" => { "allowedExtensions" => ["heic", "jpg", "jpeg", "kmz"] } } }.to_json %>"></div>
             <div id="uploader_<%= pf.object.id %>_uuids"></div>
           </div>
           <script>
@@ -59,7 +59,7 @@
             setupUploader('uploader_<%= pf.object.id %>', 'report[photos_attributes][<%= pf.options[:child_index] %>][upload_uuid]', {
               multiple: false,
               validation: {
-                allowedExtensions: ['jpg', 'jpeg'],
+                allowedExtensions: ['heic', 'jpg', 'jpeg', 'kmz'],
               },
             });
            */

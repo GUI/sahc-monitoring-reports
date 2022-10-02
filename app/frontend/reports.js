@@ -38,7 +38,7 @@ function setupUploader(element) {
       },
     },
     validation: {
-      allowedExtensions: ['jpg', 'jpeg', 'kmz'],
+      allowedExtensions: ['heic', 'jpg', 'jpeg', 'kmz'],
     },
     callbacks: {
       onStatusChange: function() {
