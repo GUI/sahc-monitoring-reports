@@ -107,7 +107,8 @@ CREATE TABLE public.photos (
     updated_at timestamp without time zone NOT NULL,
     created_by character varying,
     updated_by character varying,
-    image_data jsonb NOT NULL
+    image_data jsonb NOT NULL,
+    image_derivatives_size integer NOT NULL
 );
 
 
@@ -186,7 +187,8 @@ CREATE TABLE public.reports (
     photo_starting_num integer DEFAULT 1 NOT NULL,
     created_by character varying,
     updated_by character varying,
-    pdf_data jsonb
+    pdf_data jsonb,
+    pdf_size integer
 );
 
 
@@ -495,6 +497,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220906011131'),
 ('20220906011132'),
 ('20220906011133'),
-('20220906034202');
+('20220906034202'),
+('20221002201606');
 
 

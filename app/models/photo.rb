@@ -57,7 +57,7 @@ class Photo < ApplicationRecord
   include PhotoImageUploader::Attachment.new(:image)
 
   # Callbacks
-  before_validation :set_upload_metadata
+  before_validation :set_image_metadata
   after_commit :handle_upload_replacement
 
   # Validations
@@ -120,10 +120,11 @@ class Photo < ApplicationRecord
     end
   end
 
-  def set_upload_metadata
+  def set_image_metadata
     if self.image
       self.image_content_type = self.image.mime_type
       self.image_size = self.image.size
+      self.image_derivatives_size = self.image_derivatives.values.sum(&:size)
     end
   end
 end

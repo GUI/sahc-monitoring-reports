@@ -47,6 +47,7 @@ class Report < ApplicationRecord
   validate :validate_photos_presence
 
   # Callbacks
+  before_validation :set_pdf_metadata
   before_save :clear_cached_pdf
   after_commit :handle_uploads
 
@@ -256,7 +257,7 @@ class Report < ApplicationRecord
   def clear_cached_pdf
     # Clear the cached PDF on any changes (except for when the PDF is actually
     # being set).
-    if self.pdf_data && (self.changes.keys - ["pdf_data", "pdf_progress"]).any?
+    if self.pdf_data && (self.changes.keys - ["pdf_data", "pdf_size", "pdf_progress"]).any?
       self.pdf = nil
     end
   end
@@ -269,5 +270,13 @@ class Report < ApplicationRecord
   rescue => e
     self.update_column(:upload_progress, "failure")
     raise e
+  end
+
+  def set_pdf_metadata
+    if self.pdf
+      self.pdf_size = self.pdf.size
+    else
+      self.pdf_size = nil
+    end
   end
 end

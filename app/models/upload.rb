@@ -50,7 +50,7 @@ class Upload < ApplicationRecord
 
   private
 
-  def set_upload_metadata
+  def set_file_metadata
     if self.file
       self.file_content_type = self.file.mime_type
       self.file_size = self.file.size
