@@ -12,9 +12,11 @@ services:
   web:
     build:
       context: .
+      target: build
       args:
         BUNDLE_INSTALL_ARGS: ""
         YARN_INSTALL_ARGS: ""
+        PRECOMPILE_ASSETS: "false"
     environment:
       PORT: 9000
       DB_HOST: db
@@ -34,9 +36,11 @@ services:
   vite:
     build:
       context: .
+      target: build
       args:
         BUNDLE_INSTALL_ARGS: ""
         YARN_INSTALL_ARGS: ""
+        PRECOMPILE_ASSETS: "false"
     command: ./bin/vite dev
     environment:
       DB_HOST: db
@@ -53,9 +57,11 @@ services:
   worker:
     build:
       context: .
+      target: build
       args:
         BUNDLE_INSTALL_ARGS: ""
         YARN_INSTALL_ARGS: ""
+        PRECOMPILE_ASSETS: "false"
     command: bundle exec rake qc:work
     environment:
       DB_HOST: db

@@ -1,4 +1,7 @@
-FROM ruby:3.1-bullseye
+###
+# Build
+###
+FROM ruby:3.1-slim-bullseye AS build
 
 ENV \
   BUNDLE_JOBS=4 \
@@ -17,7 +20,7 @@ ENV \
 
 # Determine Debian version
 RUN apt-get update && \
-  apt-get -y install lsb-release && \
+  apt-get -y install build-essential curl gpg lsb-release && \
   rm -rf /var/lib/apt/lists/*
 
 # For editing encrypted secrets
@@ -41,13 +44,13 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 # Postgresql
-ARG POSTGRESQL_VERSION=13
+ARG POSTGRESQL_VERSION=14
 RUN set -x && \
   distro="$(lsb_release -s -c)" && \
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
-  curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+  curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/pgdg.gpg && \
+  echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
   apt-get update && \
-  apt-get -y install "postgresql-client-${POSTGRESQL_VERSION}" && \
+  apt-get -y install libpq-dev "postgresql-client-${POSTGRESQL_VERSION}" && \
   pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
   rm -rf /var/lib/apt/lists/*
 
@@ -73,7 +76,12 @@ WORKDIR /app
 COPY Gemfile Gemfile.lock /app/
 RUN bundle install
 ARG BUNDLE_INSTALL_ARGS="--frozen --without=development test"
-RUN set -x && bundle install $BUNDLE_INSTALL_ARGS && bundle clean --force --verbose
+RUN set -x && \
+  bundle install $BUNDLE_INSTALL_ARGS && \
+  bundle clean --force --verbose && \
+  rm -rf /usr/local/bundle/cache/*.gem && \
+  find /usr/local/bundle/gems -name "*.c" -print -delete && \
+  find /usr/local/bundle/gems -name "*.o" -print -delete
 
 # Install NPM dependencies.
 COPY package.json yarn.lock /app/
@@ -83,8 +91,55 @@ RUN set -x && \
   ln -s "$NODE_MODULES_DIR" /app/node_modules && \
   yarn install $YARN_INSTALL_ARGS
 
+# Precompile assets.
+COPY Rakefile vite.config.ts /app/
+COPY app/frontend /app/app/frontend
+COPY bin /app/bin
+COPY config /app/config
+ARG PRECOMPILE_ASSETS=true
+RUN set -x && \
+  if [ "$PRECOMPILE_ASSETS" = "true" ]; then \
+    RAILS_ENV=production RAILS_PRECOMPILE=true bundle exec rails assets:precompile --trace && \
+    rm -rf /app/tmp; \
+  fi
+
 # Copy the rest of the app.
 COPY . /app
 
+ENTRYPOINT ["/app/bin/docker-entrypoint", "--"]
+CMD ["/app/bin/docker-start"]
+
+###
+# Runtime
+###
+FROM ruby:3.1-slim-bullseye AS runtime
+WORKDIR /app
+
+# For image resizing/manipulation.
+# For image optimization.
+# Postgresql
+COPY --from=build /usr/share/keyrings/pgdg.gpg  /usr/share/keyrings/pgdg.gpg
+COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg.list 
+ARG POSTGRESQL_VERSION=14
+RUN set -x && \
+  apt-get update && \
+  apt-get -y install libvips && \
+  apt-get -y install jpegoptim optipng gifsicle pngquant && \
+  apt-get -y install "postgresql-client-${POSTGRESQL_VERSION}" && \
+  pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
+  rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /usr/local/bundle /usr/local/bundle
+COPY --from=build /app /app
+
+ENV \
+  DOCKER=true \
+  LANG=C.UTF-8 \
+  RAILS_LOG_TO_STDOUT=true \
+  RAILS_SERVE_STATIC_FILES=true \
+  RAILS_ENABLE_DELAYED_JOB=true \
+  PORT=3000
+
+EXPOSE 3000
 ENTRYPOINT ["/app/bin/docker-entrypoint", "--"]
 CMD ["/app/bin/docker-start"]

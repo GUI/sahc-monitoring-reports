@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  break if ENV["RAILS_PRECOMPILE"]
+
   devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
   devise_scope :user do
     get "login", :to => "devise/sessions#new", :as => :new_user_session
