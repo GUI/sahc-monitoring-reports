@@ -52,6 +52,8 @@ services:
     volumes:
       - .:/app
       - vite_dev_cache:/dev-cache
+    ports:
+      - "9002:9002"
     depends_on:
       - db
   worker:
