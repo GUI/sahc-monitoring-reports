@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     delete "logout", :to => "devise/sessions#destroy", :as => :destroy_user_session
   end
 
+  get "/attachments/*rest", :to => "attachments#download"
+
   resources :uploads, :only => [:index, :create, :destroy]
 
   resources :photos, :only => [] do

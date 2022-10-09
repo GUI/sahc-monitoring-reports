@@ -71,6 +71,10 @@ gem "queue_classic", "~> 4.0.0"
 # KML parsing
 gem "rexml", "~> 3.2.5"
 
+# Caching in database
+gem "moneta", "~> 1.5.1"
+gem "sequel", "~> 5.61.0"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]

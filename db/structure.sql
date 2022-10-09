@@ -88,6 +88,18 @@ ALTER SEQUENCE public.carrierwave_files_id_seq OWNED BY public.carrierwave_files
 
 
 --
+-- Name: moneta_cache; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE UNLOGGED TABLE public.moneta_cache (
+    key character varying NOT NULL,
+    value bytea NOT NULL,
+    value_size bigint GENERATED ALWAYS AS (length(value)) STORED NOT NULL,
+    created_at timestamp with time zone DEFAULT transaction_timestamp() NOT NULL
+);
+
+
+--
 -- Name: photos; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -361,6 +373,14 @@ ALTER TABLE ONLY public.carrierwave_files
 
 
 --
+-- Name: moneta_cache moneta_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.moneta_cache
+    ADD CONSTRAINT moneta_cache_pkey PRIMARY KEY (key);
+
+
+--
 -- Name: photos photos_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -419,6 +439,13 @@ CREATE INDEX idx_qc_on_scheduled_at_only_unlocked ON public.queue_classic_jobs U
 --
 
 CREATE UNIQUE INDEX index_carrierwave_files_on_path ON public.carrierwave_files USING btree (path);
+
+
+--
+-- Name: index_moneta_cache_on_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_moneta_cache_on_created_at ON public.moneta_cache USING btree (created_at DESC);
 
 
 --
@@ -498,6 +525,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220906011132'),
 ('20220906011133'),
 ('20220906034202'),
-('20221002201606');
+('20221002201606'),
+('20221009124900');
 
 
