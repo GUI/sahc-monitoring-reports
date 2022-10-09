@@ -35,7 +35,7 @@ RUN apt-get update && \
 
 # For image resizing/manipulation.
 RUN apt-get update && \
-  apt-get -y install file libvips && \
+  apt-get -y install file libvips libheif-dev && \
   rm -rf /var/lib/apt/lists/*
 
 # For image optimization.
@@ -123,7 +123,7 @@ COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg
 ARG POSTGRESQL_VERSION=14
 RUN set -x && \
   apt-get update && \
-  apt-get -y install file libvips && \
+  apt-get -y install file libvips libheif-dev && \
   apt-get -y install jpegoptim optipng gifsicle pngquant && \
   apt-get -y install "postgresql-client-${POSTGRESQL_VERSION}" && \
   pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
