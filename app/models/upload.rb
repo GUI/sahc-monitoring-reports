@@ -1,25 +1,6 @@
 require "exifr/jpeg"
 require "rexml/document"
 
-# == Schema Information
-#
-# Table name: uploads
-#
-#  id                :integer          not null, primary key
-#  uuid              :string(36)       not null
-#  file              :string(255)      not null
-#  file_size         :integer          not null
-#  file_content_type :string(255)      not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  creator_id        :integer
-#  updater_id        :integer
-#
-# Indexes
-#
-#  index_uploads_on_uuid  (uuid) UNIQUE
-#
-
 class Upload < ApplicationRecord
   # File attachments
   include UploadFileUploader::Attachment.new(:file)

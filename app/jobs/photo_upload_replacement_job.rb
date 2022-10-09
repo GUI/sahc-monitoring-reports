@@ -19,6 +19,7 @@ class PhotoUploadReplacementJob < ApplicationJob
         end
         upload.destroy
 
+        photo.image_derivatives!
         photo.save!
         photo.report.update_column(:upload_progress, nil)
       rescue => e

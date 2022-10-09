@@ -10,6 +10,7 @@ class ReportUploadsJob < ApplicationJob
           upload = Upload.find_by!(:uuid => uuid)
           upload.build_photos.each do |photo|
             photo.report_id = report.id
+            photo.image_derivatives!
             photo.save!
           end
           upload.destroy

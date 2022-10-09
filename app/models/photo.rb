@@ -1,28 +1,3 @@
-# == Schema Information
-#
-# Table name: photos
-#
-#  id                 :integer          not null, primary key
-#  report_id          :integer          not null
-#  caption            :text
-#  image              :string(255)      not null
-#  image_size         :integer          not null
-#  image_content_type :string(255)      not null
-#  taken_at           :datetime
-#  latitude           :decimal(10, 7)
-#  longitude          :decimal(10, 7)
-#  altitude           :decimal(12, 7)
-#  image_direction    :decimal(10, 7)
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  creator_id         :integer
-#  updater_id         :integer
-#
-# Foreign Keys
-#
-#  fk_rails_...  (report_id => reports.id)
-#
-
 class Photo < ApplicationRecord
   # https://github.com/DaAwesomeP/arduino-cardinal/wiki/Types/fb25844994f1fb2b0eb915c73766827459388cfb#type-2
   COMPASS_HEADINGS = [

@@ -1,23 +1,3 @@
-# == Schema Information
-#
-# Table name: reports
-#
-#  id                 :integer          not null, primary key
-#  property_name      :string(255)
-#  monitoring_year    :integer
-#  photographer_name  :string(255)
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  creator_id         :integer
-#  updater_id         :integer
-#  upload_progress    :string(20)
-#  pdf_progress       :string(20)
-#  type               :enum             default("monitoring"), not null
-#  extra_signatures   :string(255)      is an Array
-#  pdf                :string
-#  photo_starting_num :integer          default(1), not null
-#
-
 class Report < ApplicationRecord
   TYPES = {
     "monitoring" => "Monitoring Report",
@@ -48,7 +28,8 @@ class Report < ApplicationRecord
 
   # Callbacks
   before_validation :set_pdf_metadata
-  before_save :clear_cached_pdf
+  before_save :clear_cached_pdf_on_save
+  after_touch :clear_cached_pdf_on_touch
   after_commit :handle_uploads
 
   def upload_uuids=(uuids)
@@ -254,11 +235,17 @@ class Report < ApplicationRecord
     end
   end
 
-  def clear_cached_pdf
+  def clear_cached_pdf_on_save
     # Clear the cached PDF on any changes (except for when the PDF is actually
     # being set).
     if self.pdf_data && (self.changes.keys - ["pdf_data", "pdf_size", "pdf_progress"]).any?
       self.pdf = nil
+    end
+  end
+
+  def clear_cached_pdf_on_touch
+    if self.pdf_data
+      self.update_column(:pdf, nil)
     end
   end
 
