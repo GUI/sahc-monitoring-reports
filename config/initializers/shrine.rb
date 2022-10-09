@@ -9,14 +9,21 @@ module ShrineCachedS3
   def cache_store
     @cache_store ||= begin
       db_config = Rails.application.config.database_configuration.fetch(Rails.env)
-      cache = Moneta::Adapters::Sequel.new(
-        :db => {
+
+      if db_config["url"].present?
+        cache_db_config = db_config["url"]
+      else
+        cache_db_config = {
           :adapter => "postgres",
           :host => db_config["host"],
           :user => db_config["username"],
           :password => db_config["password"],
           :database => db_config["database"],
-        },
+        }
+      end
+
+      cache = Moneta::Adapters::Sequel.new(
+        :db => cache_db_config,
         :create_table => false,
         :table => :moneta_cache,
         :key_column => :key,
