@@ -21,6 +21,9 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
       add_column options.fetch(:model).table_name, options.fetch(:attachment_column_name), :jsonb
     end
 
+    add_column :reports, :pdf_size, :integer, :limit => 4, :null => true
+    add_column :photos, :image_derivatives_size, :integer, :limit => 4, :null => true
+
     changes.each do |options|
       reversible do |dir|
         dir.up do
@@ -72,7 +75,7 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
               "filename" => filename,
             })
             attacher.create_derivatives
-            attacher.persist
+            record.save!(:touch => false)
           end
         end
       end
@@ -84,7 +87,10 @@ class MigrateToShrine < ActiveRecord::Migration[7.0]
         change_column_null options.fetch(:model).table_name, options.fetch(:column_name), true
       end
 
-      # remove_column options.fetch(:model).table_name, options.fetch(:column_name)
+      remove_column options.fetch(:model).table_name, options.fetch(:column_name)
     end
+
+    change_column_null :photos, :image_derivatives_size, false
+    drop_table :carrierwave_files
   end
 end

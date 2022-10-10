@@ -10,13 +10,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: heroku_ext; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA heroku_ext;
-
-
---
 -- Name: report_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -54,40 +47,6 @@ CREATE TABLE public.ar_internal_metadata (
 
 
 --
--- Name: carrierwave_files; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.carrierwave_files (
-    id integer NOT NULL,
-    path character varying NOT NULL,
-    pg_largeobject_oid oid NOT NULL,
-    size integer NOT NULL,
-    content_type character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: carrierwave_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.carrierwave_files_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: carrierwave_files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.carrierwave_files_id_seq OWNED BY public.carrierwave_files.id;
-
-
---
 -- Name: moneta_cache; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -107,7 +66,6 @@ CREATE TABLE public.photos (
     id integer NOT NULL,
     report_id integer NOT NULL,
     caption text,
-    image character varying(255),
     image_size integer NOT NULL,
     image_content_type character varying(255) NOT NULL,
     taken_at timestamp without time zone,
@@ -195,7 +153,6 @@ CREATE TABLE public.reports (
     pdf_progress character varying(20),
     type public.report_type DEFAULT 'monitoring'::public.report_type NOT NULL,
     extra_signatures character varying(255)[],
-    pdf character varying,
     photo_starting_num integer DEFAULT 1 NOT NULL,
     created_by character varying,
     updated_by character varying,
@@ -239,7 +196,6 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.uploads (
     id integer NOT NULL,
     uuid character varying(36) NOT NULL,
-    file character varying(255),
     file_size integer NOT NULL,
     file_content_type character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -315,13 +271,6 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: carrierwave_files id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.carrierwave_files ALTER COLUMN id SET DEFAULT nextval('public.carrierwave_files_id_seq'::regclass);
-
-
---
 -- Name: photos id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -362,14 +311,6 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 ALTER TABLE ONLY public.ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
-
-
---
--- Name: carrierwave_files carrierwave_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.carrierwave_files
-    ADD CONSTRAINT carrierwave_files_pkey PRIMARY KEY (id);
 
 
 --
@@ -432,13 +373,6 @@ CREATE INDEX idx_qc_on_name_only_unlocked ON public.queue_classic_jobs USING btr
 --
 
 CREATE INDEX idx_qc_on_scheduled_at_only_unlocked ON public.queue_classic_jobs USING btree (scheduled_at, id) WHERE (locked_at IS NULL);
-
-
---
--- Name: index_carrierwave_files_on_path; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_carrierwave_files_on_path ON public.carrierwave_files USING btree (path);
 
 
 --
@@ -518,14 +452,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200422042833'),
 ('20200422215051'),
 ('20220717192141'),
+('20220717202537'),
 ('20220717202538'),
 ('20220906011129'),
 ('20220906011130'),
 ('20220906011131'),
 ('20220906011132'),
 ('20220906011133'),
-('20220906034202'),
-('20221002201606'),
-('20221009124900');
+('20220906034202');
 
 
