@@ -14,6 +14,15 @@ class Upload < ApplicationRecord
   validates :file_size, :presence => true
   validates :file_content_type, :presence => true
 
+  def self.cleanup_old!
+    older_than = Time.now.utc - 1.day
+
+    # Cleanup orphaned uploads from if the user uploads a file, but never
+    # creates a report using that upload.
+    orphaned_uploads = Upload.where("created_at < ?", older_than)
+    orphaned_uploads.destroy_all
+  end
+
   def build_photos
     photos = []
 

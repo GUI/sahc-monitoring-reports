@@ -6,6 +6,8 @@ class ReportPdfJob < ApplicationJob
       report.generate_pdf
       report.save!(:touch => false)
     end
+
+    Upload.cleanup_old!
   rescue => e
     if report
       report.update_column(:pdf_progress, "failure")

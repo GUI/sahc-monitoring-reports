@@ -16,6 +16,8 @@ class ReportUploadsJob < ApplicationJob
       end
 
       report.update_column(:upload_progress, nil)
+
+      Upload.cleanup_old!
     end
   rescue => e
     if report
