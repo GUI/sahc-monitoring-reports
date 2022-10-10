@@ -1,6 +1,12 @@
 class AttachmentsController < ApplicationController
   def download
-    fresh_when(strong_etag: param_etag)
+    # Use this approach instead of the Rails `fresh_when` so we have a simpler
+    # conditional based purely on the etag (the Rails implementation seems to
+    # combine other aspects).
+    self.headers["ETag"] = param_etag
+    if request.fresh?(response)
+      return head :not_modified
+    end
 
     set_rack_response ApplicationUploader.download_response(request.env)
   end
