@@ -8,7 +8,7 @@ class Report < ApplicationRecord
   self.inheritance_column = :_type_disabled
 
   # Associations
-  has_many :photos, -> { order(:taken_at, :image, :id) }, :dependent => :destroy, :inverse_of => :report
+  has_many :photos, -> { order(:taken_at, Arel.sql("image_data->'metadata'->>'filename'"), :id) }, :dependent => :destroy, :inverse_of => :report
   accepts_nested_attributes_for :photos, :allow_destroy => true
 
   # Virtual attributes
@@ -245,7 +245,7 @@ class Report < ApplicationRecord
 
   def clear_cached_pdf_on_touch
     if self.pdf_data
-      self.update_column(:pdf, nil)
+      self.update_column(:pdf_data, nil)
     end
   end
 
