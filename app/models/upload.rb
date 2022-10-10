@@ -106,7 +106,9 @@ class Upload < ApplicationRecord
     })
 
     if filename
-      photo.image.metadata["filename"] = filename
+      # Since we've converted the large version to jpeg, always ensure we have a
+      # jpeg extension (instead of HEIC, for example).
+      photo.image.metadata["filename"] = Pathname.new(filename).sub_ext(".jpeg").to_s
     end
 
     if(!photo.taken_at && exif.gps_date_stamp && exif.gps_time_stamp)
