@@ -31,7 +31,6 @@ gem "htmlentities", "~> 4.3.4"
 # File Uploads
 gem "shrine", "~> 3.4.0"
 gem "aws-sdk-s3", "~> 1.114"
-gem "mini_magick", "~> 4.11.0"
 
 # Resizing image uploads
 gem "image_processing", "~> 1.12.2"
