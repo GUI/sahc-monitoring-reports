@@ -86,7 +86,7 @@ else
     :secret_access_key => ENV.fetch("S3_SECRET_ACCESS_KEY"),
     :bucket => ENV.fetch("S3_BUCKET"),
     # :prefix => "#{Rails.env}",
-    :prefix => "development", # FIXME
+    :prefix => "production", # FIXME
   }
   Shrine.storages = {
     :cache => Shrine::Storage::S3.new(**options.merge(:prefix => "#{options.fetch(:prefix)}/tmp")),
@@ -98,4 +98,4 @@ if Rails.env.development? || Rails.env.test?
   Shrine.plugin :instrumentation
 end
 
-Shrine.plugin :download_endpoint, :prefix => "attachments"
+Shrine.plugin :download_endpoint, :prefix => "attachments", :disposition => "attachment"
