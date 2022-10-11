@@ -1,7 +1,7 @@
 version: "2"
 services:
   db:
-    image: postgres:13
+    image: postgres:14
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: dev_password
