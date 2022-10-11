@@ -15,7 +15,7 @@ class Upload < ApplicationRecord
   validates :file_content_type, :presence => true
 
   def self.cleanup_old!
-    older_than = Time.now.utc - 1.day
+    older_than = Time.now.utc - 2.days
 
     # Cleanup orphaned uploads from if the user uploads a file, but never
     # creates a report using that upload.
