@@ -20,6 +20,9 @@ class AttachmentsController < ApplicationController
     if status == 200
       self.headers["ETag"] = param_etag
       self.headers["Cache-Control"] = "private, no-cache, max-age=31536000, immutable"
+    else
+      self.headers.delete("ETag")
+      self.headers["Cache-Control"] = "private, no-cache"
     end
 
     self.response_body = body
