@@ -8,7 +8,12 @@ import $ from 'jquery';
 dataTablesInit(window, $);
 dataTablesBs5Init(window, $);
 
-Rails.start();
+// Conditional needed:
+// https://github.com/ElMassimo/vite_ruby/issues/246#issuecomment-1235743299
+// https://github.com/ElMassimo/jumpstart-vite/commit/f25668a989c3bfd50b9063ee99645771c7a56101#r84399950
+if (!window.Rails) {
+  Rails.start();
+}
 
 $.fn.DataTable.defaults.headerCallback = function(thead) {
   $(thead).find('th:not(.sort-arrows-added)').append('<i class="fas fa-sort"></i><i class="fas fa-sort-up"></i><i class="fas fa-sort-down"></i>');
