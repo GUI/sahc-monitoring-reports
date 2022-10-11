@@ -67,7 +67,7 @@ module ShrineCachedS3
   end
 end
 
-if Rails.env.test? || ENV["RAILS_PRECOMPILE"]
+if Rails.env.development? || Rails.env.test? || ENV["RAILS_PRECOMPILE"]
   require "shrine/storage/file_system"
 
   Shrine.storages = {
@@ -85,8 +85,7 @@ else
     :access_key_id => ENV.fetch("S3_ACCESS_KEY_ID"),
     :secret_access_key => ENV.fetch("S3_SECRET_ACCESS_KEY"),
     :bucket => ENV.fetch("S3_BUCKET"),
-    # :prefix => "#{Rails.env}",
-    :prefix => "production", # FIXME
+    :prefix => Rails.env.to_s,
   }
   Shrine.storages = {
     :cache => Shrine::Storage::S3.new(**options.merge(:prefix => "#{options.fetch(:prefix)}/tmp")),
