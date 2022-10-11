@@ -9,16 +9,15 @@ class ReportUploadsJob < ApplicationJob
         upload = Upload.find_by!(:uuid => uuid)
         upload.build_photos.each do |photo|
           photo.report_id = report.id
-          photo.image_derivatives!
           photo.save!
         end
         upload.destroy
       end
-
-      report.update_column(:upload_progress, nil)
-
-      Upload.cleanup_old!
     end
+
+    report.update_column(:upload_progress, nil)
+
+    Upload.cleanup_old!
   rescue => e
     if report
       report.update_column(:upload_progress, "failure")
