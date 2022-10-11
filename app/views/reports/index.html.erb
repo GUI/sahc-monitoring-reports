@@ -2,7 +2,7 @@
   <div class="col-sm-6">
     <h1><%= ENV.fetch("ORGANIZATION_NAME") %> Monitoring Reports</h1>
   </div>
-  <div class="col-sm-6 text-right">
+  <div class="col-sm-6 text-end">
     <%= link_to('<i class="fas fa-plus"></i>Create New Report'.html_safe, new_report_path, :class => "btn btn-primary btn-lg") %>
   </div>
 </div>
@@ -11,22 +11,22 @@
   <thead>
     <tr>
       <th>Property Name</th>
-      <th style="width: 100px;">Monitoring Year</th>
-      <th style="width: 95px;">Report Type</th>
-      <th style="width: 105px;">Created</th>
-      <th style="width: 105px;">Last Updated</th>
-      <th style="width: 180px;"></th>
+      <th class="text-nowrap" style="width: 100px;">Monitoring Year</th>
+      <th class="text-nowrap" style="width: 95px;">Report Type</th>
+      <th class="text-nowrap" style="width: 105px;">Created</th>
+      <th class="text-nowrap" style="width: 105px;">Last Updated</th>
+      <th class="text-nowrap" style="width: 180px;"></th>
     </tr>
   </thead>
   <tbody>
     <% @reports.each do |report| %>
       <tr>
         <td><%= link_to(report.property_name, report_path(report)) %></td>
-        <td><%= report.monitoring_year %></td>
-        <td><%= report.type_name %></td>
-        <td data-order="<%= report.created_at.iso8601 %>"><%= l(report.created_at, :format => :long) %></td>
-        <td data-order="<%= report.updated_at.iso8601 %>"><%= l(report.updated_at, :format => :long) %></td>
-        <td class="actions">
+        <td class="text-nowrap"><%= report.monitoring_year %></td>
+        <td class="text-nowrap"><%= report.type_name %></td>
+        <td class="text-nowrap" data-order="<%= report.created_at.iso8601 %>"><%= l(report.created_at, :format => :long) %></td>
+        <td class="text-nowrap" data-order="<%= report.updated_at.iso8601 %>"><%= l(report.updated_at, :format => :long) %></td>
+        <td class="text-nowrap actions">
           <%= link_to('<i class="fas fa-file"></i>Download PDF'.html_safe, download_report_path(report)) %>
           <%= link_to('<i class="fas fa-pencil-alt"></i>Edit'.html_safe, edit_report_path(report)) %>
         </td>

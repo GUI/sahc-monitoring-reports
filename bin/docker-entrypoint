@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+if [[ -z "${RAILS_ENV:-}" || "${RAILS_ENV:-}" == "development" ]]; then
+  app_root_dir="/app"
+
+  mkdir -p "$DEV_CACHE_DIR"
+
+  # Shift the XDG_CACHE_HOME to the dev-cache volume. Rubocop (and possibly
+  # other tools) will use this as the cache.
+  export XDG_CACHE_HOME="$DEV_CACHE_DIR/.cache"
+  mkdir -p "$XDG_CACHE_HOME"
+
+  if [ -f Gemfile ]; then
+    # Refresh the gem development cache with data from the docker build.
+    #
+    # If the default gem directory (from normal Docker builds) is newer than
+    # the existing dev-cache version (or the cache doesn't exist), then
+    # replace the cache version with the default/built gems. This ensures
+    # that if you run "docker build", the volume cache is refreshed with the
+    # built data. This eliminates having to build gems twice (once on the
+    # initial "build" and then again on when running the container with the
+    # cache volume), but still allowing the cache to take precedence when it
+    # is newer.
+    bundle_dev_cache="$DEV_CACHE_DIR$GEM_HOME"
+    if [[ -d "$GEM_HOME" && ( ! -d "$bundle_dev_cache" || "$GEM_HOME" -nt "$bundle_dev_cache" ) ]]; then
+      mkdir -p "$(dirname "$bundle_dev_cache")"
+      set -x
+      rsync --archive --delete "$GEM_HOME/" "$bundle_dev_cache/"
+      { set +x; } 2>/dev/null
+    fi
+    mkdir -p "$bundle_dev_cache"
+
+    # Shift the gem directory to the dev-cache location.
+    export GEM_HOME="$bundle_dev_cache"
+    export BUNDLE_APP_CONFIG="$bundle_dev_cache"
+    export PATH="$bundle_dev_cache/bin:$PATH"
+  fi
+
+  if [ -f package.json ]; then
+    # Refresh the yarn development cache with data from the docker build.
+    yarn_cache="/usr/local/share/.cache/yarn"
+    yarn_dev_cache="$DEV_CACHE_DIR$yarn_cache"
+    if [[ -d "$yarn_cache" && ( ! -d "$yarn_dev_cache" || "$yarn_cache" -nt "$yarn_dev_cache" ) ]]; then
+      mkdir -p "$(dirname "$yarn_dev_cache")"
+      set -x
+      rsync --archive --delete "$yarn_cache/" "$yarn_dev_cache/"
+      { set +x; } 2>/dev/null
+    fi
+    mkdir -p "$yarn_dev_cache"
+
+    # Shift the Yarn cache directory to the dev-cache location.
+    export YARN_CACHE_FOLDER="$yarn_dev_cache"
+
+    # Refresh the NPM cache with data from the docker build.
+    node_modules_dev_cache="$DEV_CACHE_DIR$NODE_MODULES_DIR"
+    if [[ -d "$NODE_MODULES_DIR" && ( ! -d "$node_modules_dev_cache" || "$NODE_MODULES_DIR" -nt "$node_modules_dev_cache" ) ]]; then
+      mkdir -p "$(dirname "$node_modules_dev_cache")"
+      set -x
+      rsync --archive --delete "$NODE_MODULES_DIR/" "$node_modules_dev_cache/"
+      { set +x; } 2>/dev/null
+    fi
+    mkdir -p "$node_modules_dev_cache"
+
+    # Shift the Yarn cache directory to the dev-cache location.
+    if [ ! -L "${app_root_dir}/node_modules" ] || [ "$(readlink "${app_root_dir}/node_modules")" != "$node_modules_dev_cache" ]; then
+      rm -rf "${app_root_dir}/node_modules"
+      ln -s "$node_modules_dev_cache" "${app_root_dir}/node_modules"
+    fi
+  fi
+
+  # Move Rails tmp cache to non-shared drive for better performance.
+  rails_tmp_dev_cache="$DEV_CACHE_DIR/app/tmp/cache"
+  if [ ! -L "${app_root_dir}/tmp/cache" ] || [ "$(readlink "${app_root_dir}/tmp/cache")" != "$rails_tmp_dev_cache" ]; then
+    mkdir -p "$rails_tmp_dev_cache" "${app_root_dir}/tmp"
+    set -x
+    rm -rf "${app_root_dir}/tmp/cache"
+    ln -s "$rails_tmp_dev_cache" "${app_root_dir}/tmp/cache"
+    { set +x; } 2>/dev/null
+  fi
+  mkdir -p "$rails_tmp_dev_cache" "${app_root_dir}/tmp"
+
+  # Ensure gems are installed.
+  if [ -f Gemfile ]; then
+    bundle install
+  fi
+
+  # Install NPM dependencies.
+  if [ -f package.json ]; then
+    yarn install
+  fi
+
+  # In development, wait for external database servers to become available.
+  export PGPASSWORD="$DB_PASSWORD"
+  export PGHOST="$DB_HOST"
+  export PGPORT="$DB_PORT"
+  export PGUSER="$DB_USERNAME"
+  export PGDATABASE="$DB_NAME"
+  until pg_isready; do
+    >&2 echo "Waiting for postgresql..."
+    sleep 1
+  done
+fi
+
+exec "$@"

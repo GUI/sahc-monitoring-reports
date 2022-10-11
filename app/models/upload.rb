@@ -1,31 +1,12 @@
 require "exifr/jpeg"
 require "rexml/document"
 
-# == Schema Information
-#
-# Table name: uploads
-#
-#  id                :integer          not null, primary key
-#  uuid              :string(36)       not null
-#  file              :string(255)      not null
-#  file_size         :integer          not null
-#  file_content_type :string(255)      not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  creator_id        :integer
-#  updater_id        :integer
-#
-# Indexes
-#
-#  index_uploads_on_uuid  (uuid) UNIQUE
-#
-
 class Upload < ApplicationRecord
   # File attachments
-  mount_uploader :file, UploadFileUploader
+  include UploadFileUploader::Attachment.new(:file)
 
   # Callbacks
-  before_validation :set_upload_metadata
+  before_validation :set_file_metadata
 
   # Validations
   validates :uuid, :presence => true
@@ -33,13 +14,22 @@ class Upload < ApplicationRecord
   validates :file_size, :presence => true
   validates :file_content_type, :presence => true
 
+  def self.cleanup_old!
+    older_than = Time.now.utc - 2.days
+
+    # Cleanup orphaned uploads from if the user uploads a file, but never
+    # creates a report using that upload.
+    orphaned_uploads = Upload.where("created_at < ?", older_than)
+    orphaned_uploads.destroy_all
+  end
+
   def build_photos
     photos = []
 
     case(self.file_content_type)
     when "application/vnd.google-earth.kmz"
       photos += build_photos_from_kmz
-    when "image/jpeg"
+    when "image/heic", "image/jpeg"
       photos << build_photo_from_jpeg
     else
       raise "Unknown extension"
@@ -50,9 +40,9 @@ class Upload < ApplicationRecord
 
   private
 
-  def set_upload_metadata
-    if(self.file.present? && self.file_cache.present?)
-      self.file_content_type = self.file.content_type
+  def set_file_metadata
+    if self.file
+      self.file_content_type = self.file.mime_type
       self.file_size = self.file.size
     end
   end
@@ -102,33 +92,33 @@ class Upload < ApplicationRecord
 
   def build_photo_from_jpeg
     photo = nil
-    begin
-      # Create a tempfile inside a temporary directory (rather than using
-      # Tempfile), so that the filename matches the original filename.
-      dir = Dir.mktmpdir
-      image = File.open(File.join(dir, self.file.file.filename), "wb+")
-      IO.copy_stream(self.file.file, image)
-      image.rewind
-      image.fsync
-
-      photo = build_photo(image)
-    ensure
-      image.close if(image)
-      FileUtils.remove_entry(dir) if(dir)
+    self.file.open do
+      photo = build_photo(self.file.tempfile, filename: self.file.original_filename)
     end
 
     photo
   end
 
-  def build_photo(image)
-    image.rewind
-    exif = EXIFR::JPEG.new(image)
-    image.rewind
+  def build_photo(image, filename: nil)
+    large = ImageProcessing::Vips
+      .loader(autorot: true)
+      .source(image)
+      .convert("jpeg")
+      .resize_to_limit(3000, 3000)
+      .call
+
+    exif = EXIFR::JPEG.new(large)
 
     photo = Photo.new({
-      :image => image,
+      :image => large,
       :taken_at => exif.date_time_original,
     })
+
+    if filename
+      # Since we've converted the large version to jpeg, always ensure we have a
+      # jpeg extension (instead of HEIC, for example).
+      photo.image.metadata["filename"] = Pathname.new(filename).sub_ext(".jpeg").to_s
+    end
 
     if(!photo.taken_at && exif.gps_date_stamp && exif.gps_time_stamp)
       date = exif.gps_date_stamp

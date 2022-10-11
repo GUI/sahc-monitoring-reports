@@ -1,54 +1,83 @@
 version: "2"
 services:
   db:
-    image: mdillon/postgis:10-alpine
+    image: postgres:14
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "9001:5432"
   web:
     build:
       context: .
+      target: build
+      args:
+        BUNDLE_INSTALL_ARGS: ""
+        YARN_INSTALL_ARGS: ""
+        PRECOMPILE_ASSETS: "false"
     environment:
       PORT: 9000
-      DB_HOSTNAME: db
+      DB_HOST: db
       DB_PORT: 5432
       DB_USERNAME: postgres
-      DB_PASSWORD: password
-      DB_NAME: sahc_development
+      DB_PASSWORD: dev_password
+      DB_NAME: sahc_monitoring_reports_development
+      VITE_RUBY_HOST: vite
     volumes:
       - .:/app
-      # Don't mount tmp directory to fix bootsnap issues between the 2
-      # different web and delayed_job containers:
-      # https://github.com/Shopify/bootsnap/issues/177#issuecomment-491711481
-      - /app/tmp
-      - bundle_cache:/usr/local/bundle
-      - rails_tmp_cache:/usr/local/rails_tmp_cache
-      - yarn_cache:/usr/local/node_modules
+      - web_dev_cache:/dev-cache
     ports:
       - "9000:9000"
     depends_on:
       - db
-  delayed_job:
+      - vite
+  vite:
     build:
       context: .
-    command: bundle exec rake jobs:work
+      target: build
+      args:
+        BUNDLE_INSTALL_ARGS: ""
+        YARN_INSTALL_ARGS: ""
+        PRECOMPILE_ASSETS: "false"
+    command: ./bin/vite dev
     environment:
-      DB_HOSTNAME: db
+      DB_HOST: db
       DB_PORT: 5432
       DB_USERNAME: postgres
-      DB_PASSWORD: password
-      DB_NAME: sahc_development
+      DB_PASSWORD: dev_password
+      DB_NAME: sahc_monitoring_reports_development
+      VITE_RUBY_HOST: 0.0.0.0
     volumes:
       - .:/app
-      - /app/tmp
-      - bundle_cache:/usr/local/bundle
-      - rails_tmp_cache:/usr/local/rails_tmp_cache
-      - yarn_cache:/usr/local/node_modules
+      - vite_dev_cache:/dev-cache
+    ports:
+      - "9002:9002"
+    depends_on:
+      - db
+  worker:
+    build:
+      context: .
+      target: build
+      args:
+        BUNDLE_INSTALL_ARGS: ""
+        YARN_INSTALL_ARGS: ""
+        PRECOMPILE_ASSETS: "false"
+    command: bundle exec rake qc:work
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: dev_password
+      DB_NAME: sahc_monitoring_reports_development
+    volumes:
+      - .:/app
+      - worker_dev_cache:/dev-cache
     depends_on:
       - db
 volumes:
-  bundle_cache:
-  rails_tmp_cache:
-  yarn_cache:
+  postgres_data:
+  web_dev_cache:
+  vite_dev_cache:
+  worker_dev_cache:

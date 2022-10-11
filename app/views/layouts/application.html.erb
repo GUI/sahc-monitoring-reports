@@ -2,10 +2,12 @@
 <html>
 <head>
   <title><%= ENV.fetch("ORGANIZATION_NAME") %> Monitoring Reports</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
-  <%= stylesheet_pack_tag "stylesheets", :media => "all" %>
-  <%= javascript_pack_tag "application" %>
+  <%= vite_client_tag %>
+  <%= vite_stylesheet_tag "stylesheets.scss", :media => "all" %>
+  <%= vite_javascript_tag 'application' %>
 </head>
 <body>
   <div class="container">
@@ -14,7 +16,7 @@
         <div class="col-sm-7">
           <%= breadcrumbs(:style => :bootstrap) %>
         </div>
-        <div class="col-sm-5 text-right">
+        <div class="col-sm-5 text-end">
           <%= current_user.email %> &bull; <%= link_to("Logout", destroy_user_session_path, :method => :delete) %>
         </div>
       </div>
@@ -33,17 +35,13 @@
         <h6>System Information</h6>
 
         <div class="row">
-          <div class="col-sm-6">
-            <div>Database Rows</div>
-            <div><%= number_with_delimiter(database_rows) %> of <%= number_with_delimiter(database_rows_limit) %> rows</div>
+          <div class="col-sm-12">
+            <div>File Storage</div>
+            <div><%= number_to_human_size(file_storage_size) %> of <%= number_to_human_size(file_storage_size_limit) %></div>
             <div class="progress">
-              <div class="progress-bar" role="progressbar" style="width: <%= database_rows_percent %>%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"><%= database_rows_percent %>%</div>
+              <div class="progress-bar" role="progressbar" style="width: <%= file_storage_size_percent %>%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"><%= file_storage_size_percent %>%</div>
             </div>
-            <div><small>Heroku's free plan is limited to <%= number_with_delimiter(database_rows_limit) %> rows</small></div>
-          </div>
-          <div class="col-sm-6">
-            <div>Database Size</div>
-            <div><%= number_to_human_size(database_size) %></div>
+            <div><small>Free file storage is limited to <%= number_to_human_size(file_storage_size_limit) %></small></div>
           </div>
         </div>
       </footer>

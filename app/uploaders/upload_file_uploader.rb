@@ -1,9 +1,15 @@
-class UploadFileUploader < CarrierWave::Uploader::Base
-  def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-  end
-
-  def extension_whitelist
-    ["jpg", "jpeg", "kmz"]
+class UploadFileUploader < ApplicationUploader
+  Attacher.validate do
+    validate_extension_inclusion [
+      "heic",
+      "jpeg",
+      "jpg",
+      "kmz",
+    ]
+    validate_mime_type_inclusion [
+      "image/heic",
+      "image/jpeg",
+      "application/vnd.google-earth.kmz",
+    ]
   end
 end

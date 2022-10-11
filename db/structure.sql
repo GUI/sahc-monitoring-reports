@@ -10,20 +10,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
---
 -- Name: report_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -33,9 +19,20 @@ CREATE TYPE public.report_type AS ENUM (
 );
 
 
+--
+-- Name: queue_classic_notify(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.queue_classic_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN
+  perform pg_notify(new.q_name, ''); RETURN NULL;
+END $$;
+
+
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
@@ -50,76 +47,15 @@ CREATE TABLE public.ar_internal_metadata (
 
 
 --
--- Name: carrierwave_files; Type: TABLE; Schema: public; Owner: -
+-- Name: moneta_cache; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.carrierwave_files (
-    id integer NOT NULL,
-    path character varying NOT NULL,
-    pg_largeobject_oid oid NOT NULL,
-    size integer NOT NULL,
-    content_type character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+CREATE UNLOGGED TABLE public.moneta_cache (
+    key character varying NOT NULL,
+    value bytea NOT NULL,
+    value_size bigint GENERATED ALWAYS AS (length(value)) STORED NOT NULL,
+    created_at timestamp with time zone DEFAULT transaction_timestamp() NOT NULL
 );
-
-
---
--- Name: carrierwave_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.carrierwave_files_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: carrierwave_files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.carrierwave_files_id_seq OWNED BY public.carrierwave_files.id;
-
-
---
--- Name: delayed_jobs; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.delayed_jobs (
-    id integer NOT NULL,
-    priority integer DEFAULT 0 NOT NULL,
-    attempts integer DEFAULT 0 NOT NULL,
-    handler text NOT NULL,
-    last_error text,
-    run_at timestamp without time zone,
-    locked_at timestamp without time zone,
-    failed_at timestamp without time zone,
-    locked_by character varying,
-    queue character varying,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
-
---
--- Name: delayed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.delayed_jobs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: delayed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 
 
 --
@@ -130,7 +66,6 @@ CREATE TABLE public.photos (
     id integer NOT NULL,
     report_id integer NOT NULL,
     caption text,
-    image character varying(255) NOT NULL,
     image_size integer NOT NULL,
     image_content_type character varying(255) NOT NULL,
     taken_at timestamp without time zone,
@@ -140,8 +75,10 @@ CREATE TABLE public.photos (
     image_direction numeric(10,7),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    creator_id integer,
-    updater_id integer
+    created_by character varying,
+    updated_by character varying,
+    image_data jsonb NOT NULL,
+    image_derivatives_size integer NOT NULL
 );
 
 
@@ -165,6 +102,43 @@ ALTER SEQUENCE public.photos_id_seq OWNED BY public.photos.id;
 
 
 --
+-- Name: queue_classic_jobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.queue_classic_jobs (
+    id bigint NOT NULL,
+    q_name text NOT NULL,
+    method text NOT NULL,
+    args jsonb NOT NULL,
+    locked_at timestamp with time zone,
+    locked_by integer,
+    created_at timestamp with time zone DEFAULT now(),
+    scheduled_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT queue_classic_jobs_method_check CHECK ((length(method) > 0)),
+    CONSTRAINT queue_classic_jobs_q_name_check CHECK ((length(q_name) > 0))
+);
+
+
+--
+-- Name: queue_classic_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.queue_classic_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: queue_classic_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.queue_classic_jobs_id_seq OWNED BY public.queue_classic_jobs.id;
+
+
+--
 -- Name: reports; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -175,14 +149,15 @@ CREATE TABLE public.reports (
     photographer_name character varying(255),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    creator_id integer,
-    updater_id integer,
     upload_progress character varying(20),
     pdf_progress character varying(20),
     type public.report_type DEFAULT 'monitoring'::public.report_type NOT NULL,
     extra_signatures character varying(255)[],
-    pdf character varying,
-    photo_starting_num integer DEFAULT 1 NOT NULL
+    photo_starting_num integer DEFAULT 1 NOT NULL,
+    created_by character varying,
+    updated_by character varying,
+    pdf_data jsonb,
+    pdf_size integer
 );
 
 
@@ -221,13 +196,13 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.uploads (
     id integer NOT NULL,
     uuid character varying(36) NOT NULL,
-    file character varying(255) NOT NULL,
     file_size integer NOT NULL,
     file_content_type character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    creator_id integer,
-    updater_id integer
+    created_by character varying,
+    updated_by character varying,
+    file_data jsonb NOT NULL
 );
 
 
@@ -270,9 +245,9 @@ CREATE TABLE public.users (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
-    creator_id integer,
-    updater_id integer,
-    deleter_id integer
+    created_by character varying,
+    updated_by character varying,
+    deleted_by character varying
 );
 
 
@@ -296,24 +271,17 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: carrierwave_files id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.carrierwave_files ALTER COLUMN id SET DEFAULT nextval('public.carrierwave_files_id_seq'::regclass);
-
-
---
--- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
-
-
---
 -- Name: photos id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.photos ALTER COLUMN id SET DEFAULT nextval('public.photos_id_seq'::regclass);
+
+
+--
+-- Name: queue_classic_jobs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.queue_classic_jobs ALTER COLUMN id SET DEFAULT nextval('public.queue_classic_jobs_id_seq'::regclass);
 
 
 --
@@ -346,19 +314,11 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 
 --
--- Name: carrierwave_files carrierwave_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: moneta_cache moneta_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.carrierwave_files
-    ADD CONSTRAINT carrierwave_files_pkey PRIMARY KEY (id);
-
-
---
--- Name: delayed_jobs delayed_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.delayed_jobs
-    ADD CONSTRAINT delayed_jobs_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.moneta_cache
+    ADD CONSTRAINT moneta_cache_pkey PRIMARY KEY (key);
 
 
 --
@@ -367,6 +327,14 @@ ALTER TABLE ONLY public.delayed_jobs
 
 ALTER TABLE ONLY public.photos
     ADD CONSTRAINT photos_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: queue_classic_jobs queue_classic_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.queue_classic_jobs
+    ADD CONSTRAINT queue_classic_jobs_pkey PRIMARY KEY (id);
 
 
 --
@@ -394,17 +362,24 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: delayed_jobs_priority; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_qc_on_name_only_unlocked; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX delayed_jobs_priority ON public.delayed_jobs USING btree (priority, run_at);
+CREATE INDEX idx_qc_on_name_only_unlocked ON public.queue_classic_jobs USING btree (q_name, id) WHERE (locked_at IS NULL);
 
 
 --
--- Name: index_carrierwave_files_on_path; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_qc_on_scheduled_at_only_unlocked; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_carrierwave_files_on_path ON public.carrierwave_files USING btree (path);
+CREATE INDEX idx_qc_on_scheduled_at_only_unlocked ON public.queue_classic_jobs USING btree (scheduled_at, id) WHERE (locked_at IS NULL);
+
+
+--
+-- Name: index_moneta_cache_on_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_moneta_cache_on_created_at ON public.moneta_cache USING btree (created_at DESC);
 
 
 --
@@ -433,6 +408,13 @@ CREATE UNIQUE INDEX index_users_on_provider_and_uid ON public.users USING btree 
 --
 
 CREATE UNIQUE INDEX unique_schema_migrations ON public.schema_migrations USING btree (version);
+
+
+--
+-- Name: queue_classic_jobs queue_classic_notify; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER queue_classic_notify AFTER INSERT ON public.queue_classic_jobs FOR EACH ROW EXECUTE FUNCTION public.queue_classic_notify();
 
 
 --
@@ -467,6 +449,16 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181124014134'),
 ('20181124025550'),
 ('20190728144143'),
-('20200422042833');
+('20200422042833'),
+('20200422215051'),
+('20220717192141'),
+('20220717202537'),
+('20220717202538'),
+('20220906011129'),
+('20220906011130'),
+('20220906011131'),
+('20220906011132'),
+('20220906011133'),
+('20220906034202');
 
 

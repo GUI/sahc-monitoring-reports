@@ -1,0 +1,2 @@
+class PdfUploader < ApplicationUploader
+end

@@ -8,8 +8,8 @@
       <div class="flower-loader"></div>
     </div>
   </div>
-  <script>
-    pollReportUploads(<%= @report.id.to_json.html_safe %>);
+  <script type="module">
+    window.pollReportUploads(<%= @report.id.to_json.html_safe %>);
   </script>
 <% else %>
   <h1>Edit Monitoring Report</h1>

@@ -14,19 +14,27 @@ module ApplicationHelper
     end
   end
 
-  def database_rows
-    @database_rows ||= ActiveRecord::Base.connection.select_value("SELECT SUM(n_live_tup) FROM pg_stat_user_tables").to_i
+  def file_storage_size
+    @file_storage_size ||= ActiveRecord::Base.connection.select_value <<~SQL
+      SELECT SUM(size)
+      FROM (
+        SELECT SUM(image_size) + SUM(image_derivatives_size) AS size
+        FROM photos
+        UNION ALL
+        SELECT SUM(pdf_size) AS size
+        FROM reports
+        UNION ALL
+        SELECT SUM(file_size) AS size
+        FROM uploads
+      ) AS t
+    SQL
   end
 
-  def database_rows_limit
-    10000
+  def file_storage_size_limit
+    10737418240
   end
 
-  def database_rows_percent
-    @database_rows_percent ||= ((database_rows / database_rows_limit.to_f) * 100).round
-  end
-
-  def database_size
-    @database_size ||= ActiveRecord::Base.connection.select_value("SELECT pg_table_size('pg_largeobject')").to_i
+  def file_storage_size_percent
+    @file_storage_size_percent ||= ((file_storage_size / file_storage_size_limit.to_f) * 100).round
   end
 end

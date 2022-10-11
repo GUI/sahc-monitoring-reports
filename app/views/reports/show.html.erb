@@ -5,8 +5,8 @@
     <p>The PDF report has successfully been generated.</p>
     <p>If your download does not begin shortly, click the download button again.</p>
   </div>
-  <script>
-    downloadReport(<%= download_report_path(@report).to_json.html_safe %>);
+  <script type="module">
+    window.downloadReport(<%= download_report_path(@report).to_json.html_safe %>);
   </script>
 <% end %>
 
@@ -48,22 +48,16 @@
 
   <div class="row">
     <div class="col-sm-4">Created:</div>
-    <div class="col-sm-8"><%= l(@report.created_at, :format => :long_tz) %> by <%= @report.creator.email %></div>
+    <div class="col-sm-8"><%= l(@report.created_at, :format => :long_tz) %> by <%= @report.created_by %></div>
   </div>
   <div class="row">
     <div class="col-sm-4">Last Updated:</div>
-    <div class="col-sm-8"><%= l(@report.updated_at, :format => :long_tz) %> by <%= @report.updater.email %></div>
+    <div class="col-sm-8"><%= l(@report.updated_at, :format => :long_tz) %> by <%= @report.updated_by %></div>
   </div>
   <% @report.photos.each_with_index do |photo, index| %>
     <div class="row">
       <div class="col-sm-4 photo">
-        <% if(photo.image? && photo.image.file.last_modified) %>
-          <%= image_tag(photo.image.thumbnail.url, :class => "img-fluid center-block") %>
-          <div class="photo-num">Photo <%= @report.photo_starting_num + index %></div>
-          <%= link_to("Download original", "#{photo.image.url}?download=true") %><br>
-        <% else %>
-          <em>Missing photo</em>
-        <% end %>
+        <%= render("photo", :photo => photo, :index => index) %>
       </div>
       <div class="col-sm-8">
         <% if(photo.caption.present?) %>
@@ -84,7 +78,7 @@
 </div>
 
 <div class="row footer">
-  <div class="col-sm-12 text-right">
+  <div class="col-sm-12 text-end">
     <%= link_to('<i class="fas fa-times"></i>Delete'.html_safe, report_path(@report), :method => :delete, :data => { :confirm => "Are you sure you want to delete the #{@report.display_name} monitoring report?" }, :class => "btn btn-danger btn-sm") %>
   </div>
 </div>

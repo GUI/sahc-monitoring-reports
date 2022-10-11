@@ -1,103 +1,101 @@
 source "https://rubygems.org"
 
-ruby "2.6.6"
+ruby "~> 3.1.2"
 
-gem "rails", "~> 5.2.1"
+gem "rails", "~> 7.0.3"
 
-# Process management
-gem "foreman", "~> 0.85.0"
+# Use postgresql as the database for Active Record
+gem "pg", "~> 1.4.3"
 
-# Server
-gem "puma", "~> 4.3.5"
-
-# PostgreSQL
-gem "pg", "~> 1.1.3"
-
-# Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem "webpacker", "~> 4.0"
+# Use the Puma web server [https://github.com/puma/puma]
+gem "puma", "~> 5.6.5"
 
 # Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", ">= 1.1.0", require: false
+gem "bootsnap", require: false
 
 # Error logging
-gem "rollbar", "~> 2.22.0"
+gem "rollbar", "~> 3.3.1"
+
+# Assets
+gem "vite_rails", "~> 3.0.12"
 
 # EXIF extraction from JPEGs
 gem "exifr", "~> 1.3.5"
 
 # Unzip KMZ files
-gem "rubyzip", "~> 1.3.0", :require => "zip"
+gem "rubyzip", "~> 2.3.2", :require => "zip"
 
 # HTML encoding
 gem "htmlentities", "~> 4.3.4"
 
 # File Uploads
-gem "carrierwave", "~> 1.3.1"
-gem "carrierwave-postgresql-table", "~> 1.1.0"
-gem "mini_magick", "~> 4.9.2"
+gem "shrine", "~> 3.4.0"
+gem "aws-sdk-s3", "~> 1.114"
+
+# Resizing image uploads
+gem "image_processing", "~> 1.12.2"
+
+# Image optimization/compression for file uploads
+gem "image_optimizer", "~> 1.9.0"
 
 # Soft deletes
-gem "paranoia", "~> 2.4.1"
+gem "paranoia", "~> 2.6.0"
 
-# Userstamping
-#
-# Use master to fix loading issues with delayed_job:
-# https://github.com/lowjoel/activerecord-userstamp/pull/12
-gem "activerecord-userstamp", "~> 3.0.5", :git => "https://github.com/lowjoel/activerecord-userstamp.git"
+# Per-request storage for storing userstamp info.
+gem "request_store", "~> 1.5.1"
 
 # PDF generation
-gem "prawn", "~> 2.2.2"
+gem "prawn", "~> 2.4.0"
+# Required for prawn until > 2.4 is released for Ruby 3.1 compatibility:
+# https://github.com/prawnpdf/prawn/issues/1235
+gem "matrix"
 
 # Form layouts
-gem "simple_form", "~> 5.0.0"
+gem "simple_form", "~> 5.1.0"
 
 # Authentication
-gem "devise", "~> 4.7.1"
-gem "omniauth", "~> 1.9.0"
-gem "omniauth-google-oauth2", "~> 0.8.0"
+gem "devise", "~> 4.8.1"
+gem "omniauth", "~> 2.1.0"
+gem "omniauth-google-oauth2", "~> 1.1.1"
 
 # Fix for CVE-2015-9284: https://github.com/omniauth/omniauth/pull/809
-gem "omniauth-rails_csrf_protection", "~> 0.1.0"
+gem "omniauth-rails_csrf_protection", "~> 1.0.1"
 
 # Breadcrumbs
-gem "gretel", "~> 3.0.9"
+gem "gretel", "~> 4.4.0"
 
 # Background jobs
-gem "delayed_job_active_record", "~> 4.1.1"
-gem "daemons", "~> 1.3.1"
+gem "queue_classic", "~> 4.0.0"
 
-# Prevent long-running requests.
-gem "rack-timeout", "~> 0.5.1", :require => "rack/timeout/base"
+# KML parsing
+gem "rexml", "~> 3.2.5"
+
+# Caching in database
+gem "moneta", "~> 1.5.1"
+gem "sequel", "~> 5.61.0"
 
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
-
-  # Add comments to models describing the available columns
-  #
-  # Use master for Ruby 2.4 deprecation warning fixes.
-  gem "annotate", "~> 2.7.4"
+  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
 
   # Development configuration
-  gem "dotenv-rails", "~> 2.7.2"
+  gem "dotenv-rails", "~> 2.8.1"
 end
 
 group :development do
-  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem "web-console", ">= 3.3.0"
-  gem "listen", ">= 3.0.5", "< 3.2"
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem "spring"
-  gem "spring-watcher-listen", "~> 2.0.0"
+  # Use console on exceptions pages [https://github.com/rails/web-console]
+  gem "web-console"
+
+  # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
+  # gem "rack-mini-profiler"
+
+  # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
+  # gem "spring"
 end
 
 group :test do
-  # Adds support for Capybara system testing and selenium driver
-  gem "capybara", ">= 2.15"
+  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
+  gem "capybara"
   gem "selenium-webdriver"
-  # Easy installation and use of chromedriver to run system tests with Chrome
-  gem "chromedriver-helper"
+  gem "webdrivers"
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]

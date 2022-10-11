@@ -1,23 +1,3 @@
-# == Schema Information
-#
-# Table name: reports
-#
-#  id                 :integer          not null, primary key
-#  property_name      :string(255)
-#  monitoring_year    :integer
-#  photographer_name  :string(255)
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  creator_id         :integer
-#  updater_id         :integer
-#  upload_progress    :string(20)
-#  pdf_progress       :string(20)
-#  type               :enum             default("monitoring"), not null
-#  extra_signatures   :string(255)      is an Array
-#  pdf                :string
-#  photo_starting_num :integer          default(1), not null
-#
-
 class Report < ApplicationRecord
   TYPES = {
     "monitoring" => "Monitoring Report",
@@ -28,14 +8,14 @@ class Report < ApplicationRecord
   self.inheritance_column = :_type_disabled
 
   # Associations
-  has_many :photos, -> { order(:taken_at, :image, :id) }, :dependent => :destroy, :inverse_of => :report
+  has_many :photos, -> { order(:taken_at, Arel.sql("image_data->'metadata'->>'filename'"), :id) }, :dependent => :destroy, :inverse_of => :report
   accepts_nested_attributes_for :photos, :allow_destroy => true
 
   # Virtual attributes
   attr_accessor :upload_uuids
 
   # File attachments
-  mount_uploader :pdf, PdfUploader
+  include PdfUploader::Attachment.new(:pdf)
 
   # Validations
   validates :type, :presence => true, :inclusion => { :in => TYPES.keys }
@@ -47,7 +27,9 @@ class Report < ApplicationRecord
   validate :validate_photos_presence
 
   # Callbacks
-  before_save :clear_cached_pdf
+  before_validation :set_pdf_metadata
+  before_save :clear_cached_pdf_on_save
+  after_touch :clear_cached_pdf_on_touch
   after_commit :handle_uploads
 
   def upload_uuids=(uuids)
@@ -172,8 +154,10 @@ class Report < ApplicationRecord
             col = index % cols
 
             pdf.grid(row, col).bounding_box do
-              if(photo.image? && photo.image.file.last_modified)
-                pdf.image photo.image.default.file.to_tempfile, :fit => [pdf.bounds.width, pdf.bounds.width / photo_aspect_ratio], :position => :center
+              if photo.image
+                photo.image(:default).open do
+                  pdf.image photo.image(:default).tempfile, :fit => [pdf.bounds.width, pdf.bounds.width / photo_aspect_ratio], :position => :center
+                end
               end
               pdf.rectangle [0, pdf.cursor], pdf.bounds.width, 6
               pdf.fill
@@ -237,10 +221,10 @@ class Report < ApplicationRecord
       end
     end
 
-    io = UploadStringIO.new(pdf.render)
-    io.original_filename = "#{self.display_name}.pdf"
-
-    self.pdf = io
+    self.pdf_attacher.attach(StringIO.new(pdf.render), metadata: {
+      "filename" => "#{self.display_name}.pdf",
+    })
+    self.pdf_progress = nil
   end
 
   private
@@ -251,23 +235,35 @@ class Report < ApplicationRecord
     end
   end
 
-  def clear_cached_pdf
+  def clear_cached_pdf_on_save
     # Clear the cached PDF on any changes (except for when the PDF is actually
     # being set).
-    if self.changes.keys != ["pdf"]
-      if self.pdf.present?
-        self.remove_pdf!
-      end
+    if self.pdf_data && (self.changes.keys - ["pdf_data", "pdf_size", "pdf_progress"]).any?
+      self.pdf = nil
+    end
+  end
+
+  def clear_cached_pdf_on_touch
+    if self.pdf_data
+      self.update_column(:pdf_data, nil)
     end
   end
 
   def handle_uploads
     if(self.upload_uuids.present?)
       self.update_column(:upload_progress, "pending")
-      ReportUploadsJob.perform_later(self.id, self.upload_uuids.uniq, ActiveRecord::Userstamp.config.default_stamper_class.stamper.id)
+      ReportUploadsJob.perform_later(self.id, self.upload_uuids.uniq, RequestStore.store[:current_user_email])
     end
   rescue => e
     self.update_column(:upload_progress, "failure")
     raise e
+  end
+
+  def set_pdf_metadata
+    if self.pdf
+      self.pdf_size = self.pdf.size
+    else
+      self.pdf_size = nil
+    end
   end
 end

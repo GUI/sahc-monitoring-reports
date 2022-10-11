@@ -1,28 +1,3 @@
-# == Schema Information
-#
-# Table name: photos
-#
-#  id                 :integer          not null, primary key
-#  report_id          :integer          not null
-#  caption            :text
-#  image              :string(255)      not null
-#  image_size         :integer          not null
-#  image_content_type :string(255)      not null
-#  taken_at           :datetime
-#  latitude           :decimal(10, 7)
-#  longitude          :decimal(10, 7)
-#  altitude           :decimal(12, 7)
-#  image_direction    :decimal(10, 7)
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  creator_id         :integer
-#  updater_id         :integer
-#
-# Foreign Keys
-#
-#  fk_rails_...  (report_id => reports.id)
-#
-
 class Photo < ApplicationRecord
   # https://github.com/DaAwesomeP/arduino-cardinal/wiki/Types/fb25844994f1fb2b0eb915c73766827459388cfb#type-2
   COMPASS_HEADINGS = [
@@ -54,10 +29,10 @@ class Photo < ApplicationRecord
   attr_accessor :upload_uuid
 
   # File attachments
-  mount_uploader :image, PhotoImageUploader
+  include PhotoImageUploader::Attachment.new(:image)
 
   # Callbacks
-  before_validation :set_upload_metadata
+  before_validation :set_image_metadata
   after_commit :handle_upload_replacement
 
   # Validations
@@ -116,14 +91,15 @@ class Photo < ApplicationRecord
   def handle_upload_replacement
     if(self.upload_uuid.present?)
       self.report.update_column(:upload_progress, "pending")
-      PhotoUploadReplacementJob.perform_later(self.id, self.upload_uuid, ActiveRecord::Userstamp.config.default_stamper_class.stamper.id)
+      PhotoUploadReplacementJob.perform_later(self.id, self.upload_uuid, RequestStore.store[:current_user_email])
     end
   end
 
-  def set_upload_metadata
-    if(self.image.present? && self.image_cache.present?)
-      self.image_content_type = self.image.content_type
+  def set_image_metadata
+    if self.image
+      self.image_content_type = self.image.mime_type
       self.image_size = self.image.size
+      self.image_derivatives_size = self.image_derivatives.values.sum(&:size)
     end
   end
 end

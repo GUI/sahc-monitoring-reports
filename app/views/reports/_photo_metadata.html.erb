@@ -1,5 +1,5 @@
 <div class="photo-metadata">
-  <span class="photo-metadata-label">Filename:</span> <%= if(photo.image? && photo.image.file.filename) then photo.image.file.filename else "<em>Missing photo</em>".html_safe end %><br>
+  <span class="photo-metadata-label">Filename:</span> <%= if(photo.image && photo.image.original_filename) then photo.image.original_filename else "<em>Missing photo</em>".html_safe end %><br>
   <span class="photo-metadata-label">Time:</span> <%= l(photo.taken_at, :format => :long_tz) if(photo.taken_at) %><br>
   <span class="photo-metadata-label">Latitude:</span> <%= photo.latitude_rounded %><br>
   <span class="photo-metadata-label">Longitude:</span> <%= photo.longitude_rounded %><br>
