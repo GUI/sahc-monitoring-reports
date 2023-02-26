@@ -4,18 +4,18 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
+    "@rails/ujs": "https://gitpkg.now.sh/rails/rails/actionview?0eaa58ef3f1690538e0efc672e931824479d15c6",
     "bootstrap": "^5.2.0",
     "bootswatch": "^5.2.0",
     "datatables.net": "^1.12.1",
     "datatables.net-bs5": "^1.12.1",
     "fine-uploader": "^5.16.2",
     "jquery": "^3.6.1",
-    "jquery.dirtyforms": "^2.0.0",
-    "rails-ujs": "^5.2.1"
+    "jquery.dirtyforms": "^2.0.0"
   },
   "devDependencies": {
     "sass": "^1.54.8",
-    "vite": "^3.1.0",
-    "vite-plugin-ruby": "^3.1.0"
+    "vite": "^4.0.0",
+    "vite-plugin-ruby": "^3.1.2"
   }
 }

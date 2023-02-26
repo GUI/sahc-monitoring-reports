@@ -8,13 +8,13 @@ gem "rails", "~> 7.0.3"
 gem "pg", "~> 1.4.3"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 5.6.5"
+gem "puma", "~> 6.1.0"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
 # Error logging
-gem "rollbar", "~> 3.3.1"
+gem "rollbar", "~> 3.4.0"
 
 # Assets
 gem "vite_rails", "~> 3.0.12"
@@ -51,10 +51,10 @@ gem "prawn", "~> 2.4.0"
 gem "matrix"
 
 # Form layouts
-gem "simple_form", "~> 5.1.0"
+gem "simple_form", "~> 5.2.0"
 
 # Authentication
-gem "devise", "~> 4.8.1"
+gem "devise", "~> 4.9.0"
 gem "omniauth", "~> 2.1.0"
 gem "omniauth-google-oauth2", "~> 1.1.1"
 
@@ -72,7 +72,7 @@ gem "rexml", "~> 3.2.5"
 
 # Caching in database
 gem "moneta", "~> 1.5.1"
-gem "sequel", "~> 5.61.0"
+gem "sequel", "~> 5.65.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
