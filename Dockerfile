@@ -20,53 +20,58 @@ ENV \
 
 # Build dependencies
 RUN apt-get update && \
-  apt-get -y install build-essential curl gpg lsb-release && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get -y --no-install-recommends install build-essential curl gpg && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # For editing encrypted secrets
 RUN apt-get update && \
-  apt-get -y install nano vim && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get -y --no-install-recommends install nano vim && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # rsync for syncing files.
 RUN apt-get update && \
-  apt-get -y install rsync && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get -y --no-install-recommends install rsync && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # For image resizing/manipulation.
 RUN apt-get update && \
-  apt-get -y install file libvips libheif-dev && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get -y --no-install-recommends install file libvips libheif-dev && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # For image optimization.
 RUN apt-get update && \
-  apt-get -y install jpegoptim optipng gifsicle pngquant && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get -y --no-install-recommends install jpegoptim optipng gifsicle pngquant && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
+
+# For image optimization.
+RUN apt-get update && \
+  apt-get -y --no-install-recommends install git && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # Postgresql
 ARG POSTGRESQL_VERSION=14
 RUN set -x && \
-  distro="$(lsb_release -s -c)" && \
+  distro=$(. /etc/os-release && echo "$VERSION_CODENAME") && \
   curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/pgdg.gpg && \
   echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
   apt-get update && \
-  apt-get -y install libpq-dev "postgresql-client-${POSTGRESQL_VERSION}" && \
+  apt-get -y --no-install-recommends install libpq-dev "postgresql-client-${POSTGRESQL_VERSION}" && \
   pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
-  rm -rf /var/lib/apt/lists/*
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # NodeJS and Yarn
 ARG NODEJS_VERSION=16
 RUN set -x && \
   version="node_${NODEJS_VERSION}.x" && \
-  distro="$(lsb_release -s -c)" && \
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
-  echo "deb http://deb.nodesource.com/$version $distro main" > /etc/apt/sources.list.d/nodesource.list && \
-  echo "deb-src http://deb.nodesource.com/$version $distro main" >> /etc/apt/sources.list.d/nodesource.list && \
-  curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-  echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+  distro=$(. /etc/os-release && echo "$VERSION_CODENAME") && \
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor > /usr/share/keyrings/nodesource.gpg && \
+  curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /usr/share/keyrings/yarn.gpg && \
+  echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] http://deb.nodesource.com/$version $distro main" > /etc/apt/sources.list.d/nodesource.list && \
+  echo "deb-src [signed-by=/usr/share/keyrings/nodesource.gpg] http://deb.nodesource.com/$version $distro main" >> /etc/apt/sources.list.d/nodesource.list && \
+  echo "deb [signed-by=/usr/share/keyrings/yarn.gpg] http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
   apt-get update && \
-  apt-get -y install nodejs yarn && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get -y --no-install-recommends install nodejs yarn && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 RUN mkdir /app
 WORKDIR /app
@@ -123,11 +128,11 @@ COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg
 ARG POSTGRESQL_VERSION=14
 RUN set -x && \
   apt-get update && \
-  apt-get -y install file libvips libheif-dev && \
-  apt-get -y install jpegoptim optipng gifsicle pngquant && \
-  apt-get -y install "postgresql-client-${POSTGRESQL_VERSION}" && \
+  apt-get -y --no-install-recommends install file libvips libheif-dev && \
+  apt-get -y --no-install-recommends install jpegoptim optipng gifsicle pngquant && \
+  apt-get -y --no-install-recommends install "postgresql-client-${POSTGRESQL_VERSION}" && \
   pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
-  rm -rf /var/lib/apt/lists/*
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /app /app
