@@ -6,5 +6,7 @@ class HealthMonitorJob < ApplicationJob
     if ENV["HEALTH_MONITOR_HEARTBEAT_URL"]
       URI.open(ENV["HEALTH_MONITOR_HEARTBEAT_URL"]).read
     end
+
+    throw "test"
   end
 end
