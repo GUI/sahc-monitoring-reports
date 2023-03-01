@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+pgrep -f qc:work
+
+psql "$DATABASE_URL" -c "SELECT 1"
