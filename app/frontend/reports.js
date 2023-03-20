@@ -165,10 +165,10 @@ $(document).ready(function() {
     });
   });
 
-  const $arrayContainer = $('.report-form .form-group.array .array-inputs-container')
+  const $arrayContainer = $('.report-form .row.array .array-inputs-container')
   function appendArrayElement() {
     if($arrayContainer.find('input:last-child').val() !== '') {
-      const $newElement = $('.form-group.array input:last-child').clone();
+      const $newElement = $('.row.array input:last-child').clone();
       $newElement.val('');
       $arrayContainer.append($newElement);
     }
