@@ -11,3 +11,5 @@ class HealthMonitorJob < ApplicationJob
     end
   end
 end
+
+HealthMonitorJob.logger = Logger.new(IO::NULL)

@@ -34,5 +34,12 @@ module SahcMonitoringReports
     config.time_zone = ENV["TIME_ZONE"] || "Eastern Time (US & Canada)"
 
     config.active_record.schema_format = :sql
+
+    config.lograge.ignore_actions = ["HealthMonitor::HealthController#check"]
+    config.lograge.custom_options = lambda do |event|
+      {
+        params: event.payload[:params].except(:controller, :action),
+      }
+    end
   end
 end
