@@ -4,7 +4,6 @@ class HealthMonitorJob < ApplicationJob
     if ENV["HEALTH_MONITOR_HEARTBEAT_URL"]
       conn = Faraday.new do |faraday|
         faraday.request :instrumentation
-        faraday.response :logger
         faraday.response :raise_error
       end
 
