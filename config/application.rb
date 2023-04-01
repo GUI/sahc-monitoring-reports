@@ -39,6 +39,7 @@ module SahcMonitoringReports
     config.lograge.custom_options = lambda do |event|
       {
         params: event.payload[:params].except(:controller, :action),
+        user_agent: event.payload[:user_agent],
       }
     end
   end
