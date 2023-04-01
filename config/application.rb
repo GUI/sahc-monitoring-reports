@@ -39,12 +39,14 @@ module SahcMonitoringReports
     config.lograge.custom_payload do |controller|
       {
         user_agent: controller.request.user_agent,
+        remote_ip: controller.request.remote_ip,
       }
     end
     config.lograge.custom_options = lambda do |event|
       {
         params: event.payload[:params].except(:controller, :action),
         user_agent: event.payload[:user_agent],
+        remote_ip: event.payload[:remote_ip],
       }
     end
   end
