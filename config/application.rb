@@ -36,6 +36,11 @@ module SahcMonitoringReports
     config.active_record.schema_format = :sql
 
     config.lograge.ignore_actions = ["HealthMonitor::HealthController#check"]
+    config.lograge.custom_payload do |controller|
+      {
+        user_agent: controller.request.user_agent,
+      }
+    end
     config.lograge.custom_options = lambda do |event|
       {
         params: event.payload[:params].except(:controller, :action),
