@@ -5,10 +5,10 @@ ruby "~> 3.1.2"
 gem "rails", "~> 7.0.3"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.4.3"
+gem "pg", "~> 1.5.3"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 6.1.0"
+gem "puma", "~> 6.3.0"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -20,7 +20,7 @@ gem "rollbar", "~> 3.4.0"
 gem "vite_rails", "~> 3.0.12"
 
 # EXIF extraction from JPEGs
-gem "exifr", "~> 1.3.5"
+gem "exifr", "~> 1.4.0"
 
 # Unzip KMZ files
 gem "rubyzip", "~> 2.3.2", :require => "zip"
@@ -29,7 +29,7 @@ gem "rubyzip", "~> 2.3.2", :require => "zip"
 gem "htmlentities", "~> 4.3.4"
 
 # File Uploads
-gem "shrine", "~> 3.4.0"
+gem "shrine", "~> 3.5.0"
 gem "aws-sdk-s3", "~> 1.114"
 
 # Resizing image uploads
@@ -62,7 +62,7 @@ gem "omniauth-google-oauth2", "~> 1.1.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0.1"
 
 # Breadcrumbs
-gem "gretel", "~> 4.4.0"
+gem "gretel", "~> 4.5.0"
 
 # Background jobs
 gem "queue_classic", "~> 4.0.0"
@@ -71,11 +71,11 @@ gem "queue_classic", "~> 4.0.0"
 gem "rexml", "~> 3.2.5"
 
 # Caching in database
-gem "moneta", "~> 1.5.1"
-gem "sequel", "~> 5.65.0"
+gem "moneta", "~> 1.6.0"
+gem "sequel", "~> 5.70.0"
 
 # Health check endpoint
-gem "health-monitor-rails", "~> 10.2.0"
+gem "health-monitor-rails", "~> 11.1.0"
 gem "faraday"
 
 # Production logging
