@@ -72,14 +72,14 @@ gem "rexml", "~> 3.2.5"
 
 # Caching in database
 gem "moneta", "~> 1.6.0"
-gem "sequel", "~> 5.70.0"
+gem "sequel", "~> 5.72.0"
 
 # Health check endpoint
 gem "health-monitor-rails", "~> 11.1.0"
 gem "faraday"
 
 # Production logging
-gem "lograge", "~> 0.12.0"
+gem "lograge", "~> 0.13.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
