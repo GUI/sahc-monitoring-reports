@@ -1,7 +1,7 @@
 ###
 # Build
 ###
-FROM ruby:3.1-slim-bullseye AS build
+FROM ruby:3.1-slim-bookworm AS build
 
 ENV \
   BUNDLE_JOBS=4 \
@@ -17,6 +17,20 @@ ENV \
   RAILS_ENABLE_DELAYED_JOB=true \
   PORT=3000 \
   DEV_CACHE_DIR=/dev-cache
+
+ARG TARGETARCH
+
+# Use jemalloc for better Ruby memory behavior.
+RUN set -x && \
+  apt-get update && \
+  apt-get -y install libjemalloc2 && \
+  arch_dir="x86_64-linux-gnu" && \
+  if [ "${TARGETARCH}" = "arm64" ]; then \
+    arch_dir="aarch64-linux-gnu"; \
+  fi && \
+  ln -s "/usr/lib/${arch_dir}/libjemalloc.so.2" /usr/local/lib/libjemalloc.so.2 && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
+ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so.2
 
 # Build dependencies
 RUN apt-get update && \
@@ -117,14 +131,28 @@ CMD ["/app/bin/docker-start"]
 ###
 # Runtime
 ###
-FROM ruby:3.1-slim-bullseye AS runtime
+FROM ruby:3.1-slim-bookworm AS runtime
 WORKDIR /app
+
+ARG TARGETARCH
+
+# Use jemalloc for better Ruby memory behavior.
+RUN set -x && \
+  apt-get update && \
+  apt-get -y install libjemalloc2 && \
+  arch_dir="x86_64-linux-gnu" && \
+  if [ "${TARGETARCH}" = "arm64" ]; then \
+    arch_dir="aarch64-linux-gnu"; \
+  fi && \
+  ln -s "/usr/lib/${arch_dir}/libjemalloc.so.2" /usr/local/lib/libjemalloc.so.2 && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
+ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so.2
 
 # For image resizing/manipulation.
 # For image optimization.
 # Postgresql
 COPY --from=build /usr/share/keyrings/pgdg.gpg  /usr/share/keyrings/pgdg.gpg
-COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg.list 
+COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg.list
 ARG POSTGRESQL_VERSION=14
 RUN set -x && \
   apt-get update && \
