@@ -138,7 +138,8 @@
 }
 
 .breadcrumb {
-  border-color: shade-color($breadcrumb-bg, 10%);
+  // border-color: shade-color($breadcrumb-bg, 10%);
+  border-color: #d8d8d8;
   @include shadow();
 }
 
