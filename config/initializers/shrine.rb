@@ -86,6 +86,9 @@ else
     :secret_access_key => ENV.fetch("S3_SECRET_ACCESS_KEY"),
     :bucket => ENV.fetch("S3_BUCKET"),
     :prefix => Rails.env.to_s,
+    :upload_options => {
+      :tagging_directive => nil,
+    },
   }
   Shrine.storages = {
     :cache => Shrine::Storage::S3.new(**options.merge(:prefix => "#{options.fetch(:prefix)}/tmp")),
