@@ -70,10 +70,6 @@ gem "queue_classic", "~> 4.0.0"
 # KML parsing
 gem "rexml", "~> 3.2.5"
 
-# Caching in database
-gem "moneta", "~> 1.6.0"
-gem "sequel", "~> 5.72.0"
-
 # Health check endpoint
 gem "health-monitor-rails", "~> 11.1.0"
 gem "faraday"

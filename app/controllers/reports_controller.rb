@@ -57,7 +57,7 @@ class ReportsController < ApplicationController
   def download
     @report = Report.find(params[:id])
     if @report.pdf && @report.pdf_progress.nil?
-      return redirect_to @report.pdf.download_url
+      return redirect_to(@report.pdf.url, allow_other_host: true)
     end
 
     @report.queue_pdf_job
