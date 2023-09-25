@@ -175,9 +175,9 @@ bootstrap@^5.2.0:
   integrity sha512-D32nmNWiQHo94BKHLmOrdjlL05q1c8oxbtBphQFb9Z5to6eGRDCm0QgeaZ4zFBHzfg2++rqa2JkqCcxDy0sH0g==
 
 bootswatch@^5.2.0:
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/bootswatch/-/bootswatch-5.3.1.tgz#7eb1e8c39b9c049d4d4617e1ba222561758e1e8b"
-  integrity sha512-WRO3SmPjyST5D+mAnhZ75bUn46/jAxlff8Z//PcrYW1KN5bHTl7c50cd7XUa9Hr7IwuffQB3U9xEdnVPmUfCSA==
+  version "5.3.2"
+  resolved "https://registry.yarnpkg.com/bootswatch/-/bootswatch-5.3.2.tgz#b59aa9d37671cb25dd781e4a6d6773008d6c9356"
+  integrity sha512-r05xOSLSx7MJvjpk/uoU8wPYgkPHWLV+uenLaRsS7yBsqSUcWYPjeUkz+tmrRv6s1eFxkF08NvQfBSSPCTyYaA==
 
 braces@^3.0.2, braces@~3.0.2:
   version "3.0.2"
@@ -399,9 +399,9 @@ reusify@^1.0.4:
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
 rollup@^3.27.1:
-  version "3.29.2"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.29.2.tgz#cbc76cd5b03b9f9e93be991d23a1dff9c6d5b740"
-  integrity sha512-CJouHoZ27v6siztc21eEQGo0kIcE5D1gVPA571ez0mMYb25LGYGKnVNXpEj5MGlepmDWGXNjDB5q7uNiPHC11A==
+  version "3.29.3"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.29.3.tgz#97769774ccaa6a3059083d4680fcabd8ead01289"
+  integrity sha512-T7du6Hum8jOkSWetjRgbwpM6Sy0nECYrYRSmZjayFcOddtKJWU4d17AC3HNUk7HRuqy4p+G7aEZclSHytqUmEg==
   optionalDependencies:
     fsevents "~2.3.2"
 
@@ -413,9 +413,9 @@ run-parallel@^1.1.9:
     queue-microtask "^1.2.2"
 
 sass@^1.54.8:
-  version "1.67.0"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.67.0.tgz#fed84d74b9cd708db603b1380d6dc1f71bb24f6f"
-  integrity sha512-SVrO9ZeX/QQyEGtuZYCVxoeAL5vGlYjJ9p4i4HFuekWl8y/LtJ7tJc10Z+ck1c8xOuoBm2MYzcLfTAffD0pl/A==
+  version "1.68.0"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.68.0.tgz#0034b0cc9a50248b7d1702ac166fd25990023669"
+  integrity sha512-Lmj9lM/fef0nQswm1J2HJcEsBUba4wgNx2fea6yJHODREoMFnwRpZydBnX/RjyXw2REIwdkbqE4hrTo4qfDBUA==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
