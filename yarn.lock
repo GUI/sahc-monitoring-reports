@@ -152,9 +152,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@rails/ujs@https://gitpkg.now.sh/rails/rails/actionview?0eaa58ef3f1690538e0efc672e931824479d15c6":
-  version "7.1.0-alpha"
-  resolved "https://gitpkg.now.sh/rails/rails/actionview?0eaa58ef3f1690538e0efc672e931824479d15c6#88121845ec26a5a586b2ccfb63e3104457b29f7a"
+"@rails/ujs@~7.1.3":
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/@rails/ujs/-/ujs-7.1.3.tgz#6d94a68b7da5046147d31716e0c187a4ead4fb93"
+  integrity sha512-FxtgKNvvIonoBE1TK7U10VMf6CYvzq8SIZ1XZ1Q8zcn/BEXzPzid3zC9qFiojuI5WXVwWhO8GFqApq0stD+OqQ==
 
 anymatch@~3.1.2:
   version "3.1.3"

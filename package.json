@@ -4,7 +4,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
-    "@rails/ujs": "https://gitpkg.now.sh/rails/rails/actionview?0eaa58ef3f1690538e0efc672e931824479d15c6",
+    "@rails/ujs": "~7.1.3",
     "bootstrap": "^5.2.0",
     "bootswatch": "^5.2.0",
     "datatables.net": "^1.12.1",

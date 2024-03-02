@@ -2,7 +2,6 @@ import '@/font_awesome_icons';
 import '@/reports';
 import 'datatables.net';
 import 'datatables.net-bs5';
-import '@/rails_ujs_disable_auto_start';
 import Rails from '@rails/ujs';
 import $ from 'jquery';
 

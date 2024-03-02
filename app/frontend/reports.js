@@ -1,7 +1,6 @@
 import 'jquery.dirtyforms';
 import $ from 'jquery';
 import qq from 'fine-uploader'
-import '@/rails_ujs_disable_auto_start';
 import Rails from '@rails/ujs';
 
 function setupUploader(element) {
