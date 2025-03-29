@@ -148,6 +148,7 @@ RUN set -x && \
   rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so.2
 
+# For pgrep health checks.
 # For image resizing/manipulation.
 # For image optimization.
 # Postgresql
@@ -156,6 +157,7 @@ COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg
 ARG POSTGRESQL_VERSION=14
 RUN set -x && \
   apt-get update && \
+  apt-get -y --no-install-recommends install procps && \
   apt-get -y --no-install-recommends install file libvips libheif-dev && \
   apt-get -y --no-install-recommends install jpegoptim optipng gifsicle pngquant && \
   apt-get -y --no-install-recommends install "postgresql-client-${POSTGRESQL_VERSION}" && \
