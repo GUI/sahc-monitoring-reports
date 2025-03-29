@@ -52,40 +52,19 @@ h1 {
   margin-left: 2em;
 }
 
-table.dataTable.table thead .sorting:before,
-table.dataTable.table thead .sorting:after,
-table.dataTable.table thead .sorting_asc:before,
-table.dataTable.table thead .sorting_asc:after,
-table.dataTable.table thead .sorting_desc:before,
-table.dataTable.table thead .sorting_desc:after, {
+table.dataTable.table thead .dt-column-order {
   display: none;
 }
 
-table.dataTable.table thead .sorting,
-table.dataTable.table thead .sorting_asc,
-table.dataTable.table thead .sorting_desc {
+table.dataTable.table thead .dt-orderable-asc,
+table.dataTable.table thead .dt-orderable-desc {
   .svg-inline--fa {
     color: $gray-500;
     position: absolute;
     right: 0.5rem;
     top: 1rem;
   }
-}
 
-table.dataTable.table thead .sorting_asc,
-table.dataTable.table thead .sorting_desc {
-  .svg-inline--fa {
-    color: $link-color;
-  }
-}
-
-table.dataTable.table thead .sorting_disabled {
-  .svg-inline--fa {
-    display: none;
-  }
-}
-
-table.dataTable.table thead .sorting {
   .fa-sort-up,
   .fa-sort-down {
     display: none;
@@ -96,7 +75,20 @@ table.dataTable.table thead .sorting {
   }
 }
 
-table.dataTable.table thead .sorting.sorting_asc {
+table.dataTable.table thead .dt-ordering-asc,
+table.dataTable.table thead .dt-ordering-desc {
+  .svg-inline--fa {
+    color: $link-color;
+  }
+}
+
+table.dataTable.table thead .dt-orderable-none {
+  .svg-inline--fa {
+    display: none;
+  }
+}
+
+table.dataTable.table thead .dt-ordering-asc {
   .fa-sort,
   .fa-sort-down {
     display: none;
@@ -107,7 +99,7 @@ table.dataTable.table thead .sorting.sorting_asc {
   }
 }
 
-table.dataTable.table thead .sorting.sorting_desc {
+table.dataTable.table thead .dt-ordering-desc {
   .fa-sort,
   .fa-sort-up {
     display: none;
@@ -211,7 +203,6 @@ abbr[title=required] {
 
     .img-fluid {
       max-height: 360px;
-      max-width: 360px;
     }
   }
 }

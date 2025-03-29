@@ -5,4 +5,8 @@ export default defineConfig({
   plugins: [
     RubyPlugin(),
   ],
+
+  server: {
+    allowedHosts: ['vite'],
+  },
 })

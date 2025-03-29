@@ -1,7 +1,7 @@
 ###
 # Build
 ###
-FROM ruby:3.1-slim-bookworm AS build
+FROM ruby:3.4-slim-bookworm AS build
 
 ENV \
   BUNDLE_JOBS=4 \
@@ -34,7 +34,7 @@ ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so.2
 
 # Build dependencies
 RUN apt-get update && \
-  apt-get -y --no-install-recommends install build-essential curl gpg && \
+  apt-get -y --no-install-recommends install build-essential curl gpg libyaml-dev && \
   rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # For editing encrypted secrets
@@ -131,7 +131,7 @@ CMD ["/app/bin/docker-start"]
 ###
 # Runtime
 ###
-FROM ruby:3.1-slim-bookworm AS runtime
+FROM ruby:3.4-slim-bookworm AS runtime
 WORKDIR /app
 
 ARG TARGETARCH
