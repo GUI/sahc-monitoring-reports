@@ -130,7 +130,7 @@ RUN set -x && \
   ln -s "$NODE_MODULES_DIR" /app/node_modules
 
 # Precompile assets.
-COPY Rakefile vite.config.js /app/
+COPY Rakefile vite.config.js pnpm-workspace.yaml /app/
 COPY app/frontend /app/app/frontend
 COPY bin /app/bin
 COPY config /app/config
