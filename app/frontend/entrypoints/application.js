@@ -8,8 +8,8 @@ Rails.start();
 
 Object.assign(DataTable.defaults, {
   headerCallback: function(thead) {
-    $(thead).find('th:not(.sort-arrows-added)').append('<i class="fas fa-sort"></i><i class="fas fa-sort-up"></i><i class="fas fa-sort-down"></i>');
-    $(thead).find('th').addClass('sort-arrows-added');
+    $(thead).find('th .dt-column-header:not(.sort-arrows-added)').append('<i class="fa-solid fa-sort fa-width-auto"></i><i class="fa-solid fa-sort-up fa-width-auto"></i><i class="fa-solid fa-sort-down fa-width-auto"></i>');
+    $(thead).find('th .dt-column-header').addClass('sort-arrows-added');
   },
 });
 

@@ -3,6 +3,16 @@
 set -e -u -x
 
 if [[ -z "${RAILS_ENV:-}" || "${RAILS_ENV:-}" == "development" ]]; then
+  # Ensure gems are installed.
+  if [ -f Gemfile ]; then
+    bundle install
+  fi
+
+  # Install NPM dependencies.
+  if [ -f package.json ]; then
+    pnpm install
+  fi
+
   # Create the database from db/structure.sql if it doesn't exist.
   if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
     { set +x; } 2>/dev/null

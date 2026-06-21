@@ -2,6 +2,136 @@
 
 set -Eeuo pipefail
 
+# Refresh development cache version of directory with data from the original
+# docker build.
+#
+# For example, if the dev-cache node_modules or gem bundle is from an old
+# version, but a `docker compose build` was performed more recently, this will
+# copy over that data from the more recent docker build into the dev-cache
+# location. This saves us from potentially having to re-install things twice
+# for development after a fresh docker build.
+function sync_dev_cache () {
+  system_path="$1"
+  local_parent_path="${2:-}"
+
+  # If the system build path data is newer than the dev-cache data, then use
+  # synchronize the two.
+  dev_cache_path="${DEV_CACHE_DIR}${system_path}"
+  if [[ -d "$system_path" && ( ! -d "$dev_cache_path" || "$system_path" -nt "$dev_cache_path" ) ]]; then
+    # By default we'll synchronize the directories with rsync. However, for
+    # syncing pnpm node_modules, we'll actually skip rsync and just perform a
+    # fresh pnpm install. This is done for a few reasons:
+    #
+    # - pnpm really needs the `${PNPM_HOME}/store` cache to be effective, but
+    #   that might not actually be present if the store was mounted as a
+    #   `mount=type=cache` during the build (since those are omitted from the
+    #   built image). So we might not have the store cache present that is
+    #   needed.
+    # - While we could rysync the underlying `node_modules` directories, given
+    #   the various hard linking and symlinking pnpm does, this is tricky to
+    #   get correct given the relocated paths.
+    # - pnpm also maintains a `modules.yaml` file inside the `node_modules`
+    #   directory that contains various absolute paths from the original
+    #   installation, so if we simply rsync the old one into place, pnpm picks
+    #   up on the fact that it's been relocated and wants to replace everything
+    #   anyway (and prompts the users to confirm the first time).
+    #
+    # So to better leverage pnpm's own caching mechanism, we'll still symlink
+    # everything over to the dev-cache location so this cache can persist
+    # across image builds, but we'll then just rely on pnpm reinstalls to get
+    # everything synced up, rather than rsync.
+    if [[ -d "${system_path}/.pnpm" && -f "${system_path}/.modules.yaml" && -n "$local_parent_path" ]]; then
+      mkdir -p "${dev_cache_path}/.pnpm"
+      set -x
+      # Caution, do not use `pnpm --dir` and instead `cd` due to this current
+      # pnpm bug: https://github.com/pnpm/pnpm/issues/8351
+      (cd "$local_parent_path" && pnpm install --prefer-offline --silent)
+      { set +x; } 2>/dev/null
+    else
+      mkdir -p "$dev_cache_path"
+      set -x
+      rsync --archive --delete "${system_path}/" "${dev_cache_path}/" 1>&2
+      { set +x; } 2>/dev/null
+    fi
+  fi
+
+  # Ensure the dev cache path always exists (even if the system path didn't
+  # exist and was copied above).
+  if [ ! -d "$dev_cache_path" ]; then
+    mkdir -p "$dev_cache_path"
+  fi
+}
+
+# Shift a directory inside the app into the dev-cache location with a symlink.
+# Shifting this content outside of the app can help with performance in local
+# development, since it's not a shared volume. This particularly helps with
+# folders containing lots of small files (like cache files or node_modules).
+#
+# Ideally, we can re-target things into the dev-cache location via environment
+# variables (like GEM_HOME). However, for certain cases where the app requires
+# the folder to be local, this symlink approach can help shift things onto the
+# more performant non-shared volume.
+function symlink_dev_cache () {
+  local_symlink_path="${app_root_dir}/$1"
+  system_path="${2:-}"
+
+  # On the CI server, ensure the node_modules directory is symlinked outside of
+  # the app directory to the same location used during the initial build in the
+  # Dockerfile.
+  #
+  # This is needed so that if the test process mounts the app directory as a
+  # shared volume from the host, we still retain the originally installed
+  # packages from the build process. Since for the CI process, we don't care
+  # about a dev cache, we just want to make sure it will match what's in the
+  # built Docker image. But we still need to perform these symlinks, since the
+  # volume mount would not have those present (unlike the version of the app
+  # inside the image where they would have been present).
+  if [ "${CI:-}" == "true" ]; then
+    if [ -n "$system_path" ]; then
+      dev_cache_path="$system_path"
+    else
+      # For cases where "system_path" isn't set (eg, for `./tmp/cache`), on CI,
+      # just ensure the directory exists and skip any further symlinking logic,
+      # since it should be unnecessary in CI.
+      set -x
+      rm -rf "$local_symlink_path"
+      mkdir -p "$local_symlink_path"
+      { set +x; } 2>/dev/null
+      return 0
+    fi
+  elif [ -n "$system_path" ]; then
+    dev_cache_path="${DEV_CACHE_DIR}$system_path"
+  else
+    dev_cache_path="${DEV_CACHE_DIR}${local_symlink_path}"
+  fi
+
+  # If the symlink isn't already in place, then create it (replacing whatever
+  # was there before).
+  local_parent_path=$(dirname "$local_symlink_path")
+  mkdir -p "$local_parent_path"
+  if [ ! -L "$local_symlink_path" ] || [ "$(readlink "$local_symlink_path")" != "$dev_cache_path" ]; then
+    set -x
+    rm -rf "$local_symlink_path"
+    ln -s "$dev_cache_path" "$local_symlink_path"
+    { set +x; } 2>/dev/null
+  fi
+
+  # For non-CI environment, make sure the dev cache is up to date with the date
+  # with the system-wide directory from the built Docker image.
+  #
+  # We can skip this on CI, since we're not actually utilizing the dev cache
+  # for CI (but still call this function just to help with symlinking to the
+  # system location).
+  if [ "${CI:-}" != "true" ] && [ -n "$system_path" ]; then
+    sync_dev_cache "$system_path" "$local_parent_path"
+  fi
+
+  # Ensure the dev cache path exists regardless of other conditions.
+  if [ ! -d "$dev_cache_path" ]; then
+    mkdir -p "$dev_cache_path"
+  fi
+}
+
 if [[ -z "${RAILS_ENV:-}" || "${RAILS_ENV:-}" == "development" ]]; then
   app_root_dir="/app"
 
@@ -23,14 +153,8 @@ if [[ -z "${RAILS_ENV:-}" || "${RAILS_ENV:-}" == "development" ]]; then
     # initial "build" and then again on when running the container with the
     # cache volume), but still allowing the cache to take precedence when it
     # is newer.
-    bundle_dev_cache="$DEV_CACHE_DIR$GEM_HOME"
-    if [[ -d "$GEM_HOME" && ( ! -d "$bundle_dev_cache" || "$GEM_HOME" -nt "$bundle_dev_cache" ) ]]; then
-      mkdir -p "$(dirname "$bundle_dev_cache")"
-      set -x
-      rsync --archive --delete "$GEM_HOME/" "$bundle_dev_cache/"
-      { set +x; } 2>/dev/null
-    fi
-    mkdir -p "$bundle_dev_cache"
+    sync_dev_cache "$GEM_HOME"
+    bundle_dev_cache="${DEV_CACHE_DIR}${GEM_HOME}"
 
     # Shift the gem directory to the dev-cache location.
     export GEM_HOME="$bundle_dev_cache"
@@ -39,57 +163,25 @@ if [[ -z "${RAILS_ENV:-}" || "${RAILS_ENV:-}" == "development" ]]; then
   fi
 
   if [ -f package.json ]; then
-    # Refresh the yarn development cache with data from the docker build.
-    yarn_cache="/usr/local/share/.cache/yarn"
-    yarn_dev_cache="$DEV_CACHE_DIR$yarn_cache"
-    if [[ -d "$yarn_cache" && ( ! -d "$yarn_dev_cache" || "$yarn_cache" -nt "$yarn_dev_cache" ) ]]; then
-      mkdir -p "$(dirname "$yarn_dev_cache")"
-      set -x
-      rsync --archive --delete "$yarn_cache/" "$yarn_dev_cache/"
-      { set +x; } 2>/dev/null
-    fi
-    mkdir -p "$yarn_dev_cache"
+    # Refresh the pnpm development cache with data from the docker build.
+    sync_dev_cache "$PNPM_HOME"
+    pnpm_dev_cache="${DEV_CACHE_DIR}${PNPM_HOME}"
 
-    # Shift the Yarn cache directory to the dev-cache location.
-    export YARN_CACHE_FOLDER="$yarn_dev_cache"
+    # Shift the PNPM directory to the dev-cache location.
+    export PNPM_HOME="$pnpm_dev_cache"
 
-    # Refresh the NPM cache with data from the docker build.
-    node_modules_dev_cache="$DEV_CACHE_DIR$NODE_MODULES_DIR"
-    if [[ -d "$NODE_MODULES_DIR" && ( ! -d "$node_modules_dev_cache" || "$NODE_MODULES_DIR" -nt "$node_modules_dev_cache" ) ]]; then
-      mkdir -p "$(dirname "$node_modules_dev_cache")"
-      set -x
-      rsync --archive --delete "$NODE_MODULES_DIR/" "$node_modules_dev_cache/"
-      { set +x; } 2>/dev/null
-    fi
-    mkdir -p "$node_modules_dev_cache"
-
-    # Shift the Yarn cache directory to the dev-cache location.
-    if [ ! -L "${app_root_dir}/node_modules" ] || [ "$(readlink "${app_root_dir}/node_modules")" != "$node_modules_dev_cache" ]; then
-      rm -rf "${app_root_dir}/node_modules"
-      ln -s "$node_modules_dev_cache" "${app_root_dir}/node_modules"
+    # Workaround for PNPM_HOME not affecting things with some of our
+    # development volume mounts: https://github.com/pnpm/pnpm/issues/7050
+    if ! grep -q "store-dir" /etc/npmrc ; then
+      echo "store_dir=${PNPM_HOME}/store" >> /etc/npmrc
     fi
   fi
 
   # Move Rails tmp cache to non-shared drive for better performance.
-  rails_tmp_dev_cache="$DEV_CACHE_DIR/app/tmp/cache"
-  if [ ! -L "${app_root_dir}/tmp/cache" ] || [ "$(readlink "${app_root_dir}/tmp/cache")" != "$rails_tmp_dev_cache" ]; then
-    mkdir -p "$rails_tmp_dev_cache" "${app_root_dir}/tmp"
-    set -x
-    rm -rf "${app_root_dir}/tmp/cache"
-    ln -s "$rails_tmp_dev_cache" "${app_root_dir}/tmp/cache"
-    { set +x; } 2>/dev/null
-  fi
-  mkdir -p "$rails_tmp_dev_cache" "${app_root_dir}/tmp"
+  symlink_dev_cache "tmp/cache"
 
-  # Ensure gems are installed.
-  if [ -f Gemfile ]; then
-    bundle install
-  fi
-
-  # Install NPM dependencies.
-  if [ -f package.json ]; then
-    yarn install
-  fi
+  # Shift node_modules directory to the dev-cache location.
+  symlink_dev_cache "node_modules" "$NODE_MODULES_DIR"
 
   # In development, wait for external database servers to become available.
   export PGPASSWORD="$DB_PASSWORD"

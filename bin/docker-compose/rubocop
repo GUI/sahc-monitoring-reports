@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec docker-compose run --rm --no-deps web "$(basename "$0")" "$@"
+exec docker compose run --rm --no-deps web "$(basename "$0")" "$@"

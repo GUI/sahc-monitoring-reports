@@ -73,7 +73,7 @@
     <% if(@report.photos.present?) %>
       <div class="row mb-3 form-group" id="uploader_toggle">
         <div class="col-sm-8 offset-sm-4">
-          <%= link_to('<i class="fas fa-plus"></i>Add additional new photos'.html_safe, "#") %>
+          <%= link_to('<i class="fa-solid fa-plus fa-width-auto"></i>Add additional new photos'.html_safe, "#") %>
         </div>
       </div>
     <% end %>
@@ -120,7 +120,7 @@
 
   <div class="row submit">
     <div class="col-sm-12 text-center">
-      <%= f.button :button, :class => "btn-lg btn-primary", "data-after-submit-text" => '<i class="fas fa-sync-alt fa-spin"></i>Saving...'.html_safe %>
+      <%= f.button :button, :class => "btn-lg btn-primary", "data-after-submit-text" => '<i class="fa-solid fa-sync-alt fa-spin fa-width-auto"></i>Saving...'.html_safe %>
       <%= link_to("Cancel", :back, :class => "text-danger cancel") %>
     </div>
   </div>

@@ -15,8 +15,8 @@
     <h1><%= @report.display_name %></h1>
   </div>
   <div class="col-md-6 button-actions">
-    <%= link_to('<i class="fas fa-file"></i>Download PDF'.html_safe, download_report_path(@report), :class => "btn btn-primary btn-lg") %>
-    <%= link_to('<i class="fas fa-pencil-alt"></i>Edit'.html_safe, edit_report_path(@report), :class => "btn btn-secondary btn-lg") %><br>
+    <%= link_to('<i class="fa-solid fa-file fa-width-auto"></i>Download PDF'.html_safe, download_report_path(@report), :class => "btn btn-primary btn-lg") %>
+    <%= link_to('<i class="fa-solid fa-pencil-alt fa-width-auto"></i>Edit'.html_safe, edit_report_path(@report), :class => "btn btn-secondary btn-lg") %><br>
   </div>
 </div>
 
@@ -79,6 +79,6 @@
 
 <div class="row footer">
   <div class="col-sm-12 text-end">
-    <%= link_to('<i class="fas fa-times"></i>Delete'.html_safe, report_path(@report), :method => :delete, :data => { :confirm => "Are you sure you want to delete the #{@report.display_name} monitoring report?" }, :class => "btn btn-danger btn-sm") %>
+    <%= link_to('<i class="fa-solid fa-times fa-width-auto"></i>Delete'.html_safe, report_path(@report), :method => :delete, :data => { :confirm => "Are you sure you want to delete the #{@report.display_name} monitoring report?" }, :class => "btn btn-danger btn-sm") %>
   </div>
 </div>

@@ -1,12 +1,11 @@
-version: "2"
 services:
   db:
-    image: postgres:14
+    image: postgres:18
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: dev_password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     ports:
       - "9001:5432"
   web:
@@ -14,8 +13,9 @@ services:
       context: .
       target: build
       args:
-        BUNDLE_INSTALL_ARGS: ""
-        YARN_INSTALL_ARGS: ""
+        BUNDLE_FROZEN: "false"
+        BUNDLE_WITHOUT: ""
+        PNPM_INSTALL_ARGS: ""
         PRECOMPILE_ASSETS: "false"
     environment:
       PORT: 9000
@@ -38,8 +38,9 @@ services:
       context: .
       target: build
       args:
-        BUNDLE_INSTALL_ARGS: ""
-        YARN_INSTALL_ARGS: ""
+        BUNDLE_FROZEN: "false"
+        BUNDLE_WITHOUT: ""
+        PNPM_INSTALL_ARGS: ""
         PRECOMPILE_ASSETS: "false"
     command: ./bin/vite dev
     environment:
@@ -61,8 +62,9 @@ services:
       context: .
       target: build
       args:
-        BUNDLE_INSTALL_ARGS: ""
-        YARN_INSTALL_ARGS: ""
+        BUNDLE_FROZEN: "false"
+        BUNDLE_WITHOUT: ""
+        PNPM_INSTALL_ARGS: ""
         PRECOMPILE_ASSETS: "false"
     command: bundle exec rake qc:work
     environment:

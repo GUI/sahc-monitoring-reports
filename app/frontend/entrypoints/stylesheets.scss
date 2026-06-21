@@ -52,6 +52,12 @@ h1 {
   margin-left: 2em;
 }
 
+// Don't flip ordering as DataTables does by default for numeric columns. This
+// keeps the sort icon on the right instead of shifting to the left.
+table.dataTable th.dt-type-numeric div.dt-column-header {
+  flex-direction: row;
+}
+
 table.dataTable.table thead .dt-column-order {
   display: none;
 }
@@ -60,9 +66,7 @@ table.dataTable.table thead .dt-orderable-asc,
 table.dataTable.table thead .dt-orderable-desc {
   .svg-inline--fa {
     color: $gray-500;
-    position: absolute;
-    right: 0.5rem;
-    top: 1rem;
+    margin-left: 0.25rem;
   }
 
   .fa-sort-up,
