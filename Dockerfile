@@ -1,7 +1,7 @@
 ###
 # Build
 ###
-FROM ruby:3.4-slim-bookworm AS build
+FROM ruby:4.0-slim-trixie AS build
 
 ENV \
   BUNDLE_JOBS=4 \
@@ -11,6 +11,8 @@ ENV \
   LANG=C.UTF-8 \
   NODE_OPTIONS=--use-openssl-ca \
   NODE_MODULES_DIR=/usr/local/node_modules \
+  COREPACK_HOME=/usr/local/corepack \
+  PNPM_HOME=/usr/local/pnpm \
   NOKOGIRI_USE_SYSTEM_LIBRARIES=1 \
   RAILS_LOG_TO_STDOUT=true \
   RAILS_SERVE_STATIC_FILES=true \
@@ -63,7 +65,7 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
 # Postgresql
-ARG POSTGRESQL_VERSION=14
+ARG POSTGRESQL_VERSION=18
 RUN set -x && \
   distro=$(. /etc/os-release && echo "$VERSION_CODENAME") && \
   curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/pgdg.gpg && \
@@ -73,19 +75,34 @@ RUN set -x && \
   pg_dump --version | grep --fixed-strings "(PostgreSQL) ${POSTGRESQL_VERSION}." && \
   rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
 
-# NodeJS and Yarn
-ARG NODEJS_VERSION=16
+# NodeJS and pnpm
+ARG NODEJS_VERSION=24.17.0
+ARG COREPACK_VERSION=0.35.0
+ARG PNPM_VERSION=11.8.0
 RUN set -x && \
-  version="node_${NODEJS_VERSION}.x" && \
-  distro=$(. /etc/os-release && echo "$VERSION_CODENAME") && \
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor > /usr/share/keyrings/nodesource.gpg && \
-  curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /usr/share/keyrings/yarn.gpg && \
-  echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] http://deb.nodesource.com/$version $distro main" > /etc/apt/sources.list.d/nodesource.list && \
-  echo "deb-src [signed-by=/usr/share/keyrings/nodesource.gpg] http://deb.nodesource.com/$version $distro main" >> /etc/apt/sources.list.d/nodesource.list && \
-  echo "deb [signed-by=/usr/share/keyrings/yarn.gpg] http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-  apt-get update && \
-  apt-get -y --no-install-recommends install nodejs yarn && \
-  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/*
+  arch="$TARGETARCH" && \
+  if [ "$arch" = "amd64" ]; then \
+    arch="x64"; \
+  fi && \
+  # Verify no unexpected files in /usr/local before extraction
+  test -z "$(find /usr/local -maxdepth 1 -type f)" && \
+  curl -fsSL "https://nodejs.org/download/release/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-${arch}.tar.xz" | tar -xvJ --no-same-owner -C /usr/local/ --strip-components 1 && \
+  ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
+  # Move NodeJS's license, readme, etc to sub directory to tidy things.
+  find /usr/local -maxdepth 1 -type f -exec mv -v {} /usr/local/share/doc/node/ \; && \
+  node --version && \
+  nodejs --version && \
+  npm --version && \
+  npm install -g "corepack@${COREPACK_VERSION}" && \
+  corepack enable && \
+  corepack install -g "pnpm@${PNPM_VERSION}" && \
+  npmrc_path="$(npm config get globalconfig)" && \
+  if [ "$npmrc_path" != "/etc/npmrc" ]; then \
+    mkdir -p "$(dirname $npmrc_path)" && \
+    ln -s "$npmrc_path" /etc/npmrc; \
+  fi && \
+  echo "update-notifier=false" > /etc/npmrc && \
+  rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old /var/cache/* /var/log/* /root/.npm
 
 RUN mkdir /app
 WORKDIR /app
@@ -94,9 +111,12 @@ WORKDIR /app
 # changes).
 COPY Gemfile Gemfile.lock /app/
 RUN bundle install
-ARG BUNDLE_INSTALL_ARGS="--frozen --without=development test"
+ARG BUNDLE_FROZEN="true"
+ENV BUNDLE_FROZEN=$BUNDLE_FROZEN
+ARG BUNDLE_WITHOUT="development test"
+ENV BUNDLE_WITHOUT=$BUNDLE_WITHOUT
 RUN set -x && \
-  bundle install $BUNDLE_INSTALL_ARGS && \
+  bundle install && \
   bundle clean --force --verbose && \
   rm -rf /usr/local/bundle/cache/*.gem && \
   find /usr/local/bundle/gems -name "*.c" -print -delete && \
@@ -104,11 +124,10 @@ RUN set -x && \
 
 # Install NPM dependencies.
 COPY package.json yarn.lock /app/
-ARG YARN_INSTALL_ARGS="--frozen-lockfile"
+ARG PNPM_INSTALL_ARGS="--frozen-lockfile"
 RUN set -x && \
-  mkdir -p "$NODE_MODULES_DIR" && \
-  ln -s "$NODE_MODULES_DIR" /app/node_modules && \
-  yarn install $YARN_INSTALL_ARGS
+  mkdir -p "${NODE_MODULES_DIR}/.pnpm" && \
+  ln -s "$NODE_MODULES_DIR" /app/node_modules
 
 # Precompile assets.
 COPY Rakefile vite.config.ts /app/
@@ -131,7 +150,7 @@ CMD ["/app/bin/docker-start"]
 ###
 # Runtime
 ###
-FROM ruby:3.4-slim-bookworm AS runtime
+FROM ruby:4.0-slim-trixie AS runtime
 WORKDIR /app
 
 ARG TARGETARCH
@@ -154,7 +173,7 @@ ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so.2
 # Postgresql
 COPY --from=build /usr/share/keyrings/pgdg.gpg  /usr/share/keyrings/pgdg.gpg
 COPY --from=build /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgdg.list
-ARG POSTGRESQL_VERSION=14
+ARG POSTGRESQL_VERSION=18
 RUN set -x && \
   apt-get update && \
   apt-get -y --no-install-recommends install procps && \

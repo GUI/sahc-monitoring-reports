@@ -1,46 +1,46 @@
-source "https://rubygems.org"
+source "https://rubygems.org", cooldown: 7
 
-ruby "~> 3.4.0"
+ruby "~> 4.0.0"
 
-gem "rails", "~> 8.0.2"
+gem "rails", "~> 8.1.3"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.5.9"
+gem "pg", "~> 1.6.3"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 7.2.1"
+gem "puma", "~> 8.0.2"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
 # Error logging
-gem "rollbar", "~> 3.6.1"
+gem "rollbar", "~> 3.8.0"
 
 # Assets
-gem "vite_rails", "~> 3.0.19"
+gem "vite_rails", "~> 3.11.0"
 
 # EXIF extraction from JPEGs
-gem "exifr", "~> 1.4.1"
+gem "exifr", "~> 1.5.1"
 
 # Unzip KMZ files
-gem "rubyzip", "~> 2.4.1", :require => "zip"
+gem "rubyzip", "~> 3.4.0", :require => "zip"
 
 # HTML encoding
-gem "htmlentities", "~> 4.3.4"
+gem "htmlentities", "~> 4.4.2"
 
 # File Uploads
-gem "shrine", "~> 3.6.0"
+gem "shrine", "~> 3.7.1"
 gem "content_disposition", "~> 1.0.0"
-gem "aws-sdk-s3", "~> 1.208"
+gem "aws-sdk-s3", "~> 1.225"
 
 # Resizing image uploads
-gem "image_processing", "~> 1.14.0"
+gem "image_processing", "~> 2.0.2"
 
 # Image optimization/compression for file uploads
 gem "image_optimizer", "~> 1.9.0"
 
 # Soft deletes
-gem "paranoia", "~> 3.0.1"
+gem "paranoia", "~> 3.1.0"
 
 # Per-request storage for storing userstamp info.
 gem "request_store", "~> 1.7.0"
@@ -52,27 +52,27 @@ gem "prawn", "~> 2.5.0"
 gem "matrix"
 
 # Form layouts
-gem "simple_form", "~> 5.3.1"
+gem "simple_form", "~> 5.4.1"
 
 # Authentication
 gem "devise", "~> 5.0.4"
-gem "omniauth", "~> 2.1.3"
-gem "omniauth-google-oauth2", "~> 1.2.1"
+gem "omniauth", "~> 2.1.4"
+gem "omniauth-google-oauth2", "~> 1.2.2"
 
 # Fix for CVE-2015-9284: https://github.com/omniauth/omniauth/pull/809
-gem "omniauth-rails_csrf_protection", "~> 1.0.2"
+gem "omniauth-rails_csrf_protection", "~> 2.0.1"
 
 # Breadcrumbs
-gem "gretel", "~> 5.0.1"
+gem "gretel", "~> 5.1.0"
 
 # Background jobs
 gem "queue_classic", "~> 4.0.0"
 
 # KML parsing
-gem "rexml", "~> 3.4.2"
+gem "rexml", "~> 3.4.4"
 
 # Health check endpoint
-gem "health-monitor-rails", "~> 12.6.0"
+gem "health-monitor-rails", "~> 12.9.0"
 gem "faraday"
 
 # Production logging
@@ -82,11 +82,14 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
+  # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
+  gem "bundler-audit", require: false
+
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
   # Development configuration
-  gem "dotenv-rails", "~> 3.1.7"
+  gem "dotenv-rails", "~> 3.2.0"
 end
 
 group :development do
