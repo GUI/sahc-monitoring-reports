@@ -31,7 +31,7 @@ gem "htmlentities", "~> 4.3.4"
 # File Uploads
 gem "shrine", "~> 3.6.0"
 gem "content_disposition", "~> 1.0.0"
-gem "aws-sdk-s3", "~> 1.182"
+gem "aws-sdk-s3", "~> 1.208"
 
 # Resizing image uploads
 gem "image_processing", "~> 1.14.0"
@@ -55,7 +55,7 @@ gem "matrix"
 gem "simple_form", "~> 5.3.1"
 
 # Authentication
-gem "devise", "~> 4.9.4"
+gem "devise", "~> 5.0.4"
 gem "omniauth", "~> 2.1.3"
 gem "omniauth-google-oauth2", "~> 1.2.1"
 
