@@ -80,9 +80,9 @@ ARG NODEJS_VERSION=24.17.0
 ARG COREPACK_VERSION=0.35.0
 ARG PNPM_VERSION=11.8.0
 RUN set -x && \
-  arch="$TARGETARCH" && \
-  if [ "$arch" = "amd64" ]; then \
-    arch="x64"; \
+  arch="x64" && \
+  if [ "${TARGETARCH}" = "arm64" ]; then \
+    arch="arm64"; \
   fi && \
   # Verify no unexpected files in /usr/local before extraction
   test -z "$(find /usr/local -maxdepth 1 -type f)" && \
@@ -123,14 +123,14 @@ RUN set -x && \
   find /usr/local/bundle/gems -name "*.o" -print -delete
 
 # Install NPM dependencies.
-COPY package.json yarn.lock /app/
+COPY package.json pnpm-lock.yaml /app/
 ARG PNPM_INSTALL_ARGS="--frozen-lockfile"
 RUN set -x && \
   mkdir -p "${NODE_MODULES_DIR}/.pnpm" && \
   ln -s "$NODE_MODULES_DIR" /app/node_modules
 
 # Precompile assets.
-COPY Rakefile vite.config.ts /app/
+COPY Rakefile vite.config.js /app/
 COPY app/frontend /app/app/frontend
 COPY bin /app/bin
 COPY config /app/config
