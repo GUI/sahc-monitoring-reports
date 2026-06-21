@@ -69,7 +69,7 @@ gem "gretel", "~> 5.0.1"
 gem "queue_classic", "~> 4.0.0"
 
 # KML parsing
-gem "rexml", "~> 3.4.1"
+gem "rexml", "~> 3.4.2"
 
 # Health check endpoint
 gem "health-monitor-rails", "~> 12.6.0"
