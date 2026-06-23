@@ -135,6 +135,7 @@ COPY app/frontend /app/app/frontend
 COPY bin /app/bin
 COPY config /app/config
 ARG PRECOMPILE_ASSETS=true
+ARG VITE_ROLLBAR_ACCESS_TOKEN
 RUN set -x && \
   if [ "$PRECOMPILE_ASSETS" = "true" ]; then \
     RAILS_ENV=production RAILS_PRECOMPILE=true bundle exec rails assets:precompile --trace && \

@@ -51,7 +51,7 @@ class Upload < ApplicationRecord
     photos = []
 
     coder = HTMLEntities.new
-    Zip::File.open(self.file.file.to_tempfile) do |zip_file|
+    Zip::File.open(self.file.download) do |zip_file|
       doc = REXML::Document.new(zip_file.glob("doc.kml").first.get_input_stream.read)
       zip_file.glob("files/*.jpg").each do |zip_entry|
         filename = File.basename(zip_entry.name)
@@ -71,7 +71,7 @@ class Upload < ApplicationRecord
           # Tempfile), so that the filename matches the original filename.
           dir = Dir.mktmpdir
           path = File.join(dir, filename)
-          zip_entry.extract(path)
+          zip_entry.extract(filename, destination_directory: dir)
           image = File.open(path, "rb")
 
           photo = build_photo(image)

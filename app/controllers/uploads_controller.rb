@@ -9,8 +9,9 @@ class UploadsController < ApplicationController
     data = uploads.map do |upload|
       {
         :uuid => upload.uuid,
-        :name => upload.file.filename,
-        :size => upload.file_size,
+        :name => upload.file.original_filename,
+        :type => upload.file.mime_type,
+        :size => upload.file.size,
       }
     end
 

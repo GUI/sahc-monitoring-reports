@@ -1,3 +1,4 @@
+import '@/lib/rollbar';
 import '@/font_awesome_icons';
 import '@/reports';
 import DataTable from 'datatables.net-bs5';

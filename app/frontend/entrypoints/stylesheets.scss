@@ -6,7 +6,8 @@ $web-font-path: '/foobar';
 @import "bootstrap/scss/bootstrap";
 @import "../stylesheets/_bootswatch";
 @import "datatables.net-bs5/css/dataTables.bootstrap5";
-@import "fine-uploader/fine-uploader/fine-uploader-new";
+@import "@uppy/core/css/style.css";
+@import "@uppy/dashboard/css/style.css";
 @import "../stylesheets/_flower_spinner";
 @import "../stylesheets/simple_form-bootstrap/_simple_form-bootstrap";
 
@@ -38,10 +39,12 @@ h1 {
   }
 }
 
-.qq-upload-button {
-  background-color: $primary;
-  border-color: darken($primary, 5%);
-  width: auto;
+// Fix overlapping remove and progress icons:
+// https://github.com/transloadit/uppy/issues/3308#issuecomment-2004391887
+.uppy-Dashboard-Item.is-complete .uppy-Dashboard-Item-progress {
+  left: 0px;
+  text-align: left;
+  inset-inline-start: -8px;
 }
 
 .submit {

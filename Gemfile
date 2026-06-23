@@ -35,6 +35,7 @@ gem "aws-sdk-s3", "~> 1.225"
 
 # Resizing image uploads
 gem "image_processing", "~> 2.0.2"
+gem "ruby-vips", "~> 2.3.0"
 
 # Image optimization/compression for file uploads
 gem "image_optimizer", "~> 1.9.0"
