@@ -2,10 +2,10 @@ source "https://rubygems.org", cooldown: 7
 
 ruby "~> 4.0.0"
 
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.4"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.6.3"
+gem "pg", "~> 1.7.0"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 8.0.2"
@@ -17,24 +17,24 @@ gem "bootsnap", require: false
 gem "rollbar", "~> 3.8.0"
 
 # Assets
-gem "vite_rails", "~> 3.11.0"
+gem "vite_rails", "~> 3.11.1"
 
 # EXIF extraction from JPEGs
 gem "exifr", "~> 1.5.1"
 
 # Unzip KMZ files
-gem "rubyzip", "~> 3.4.0", :require => "zip"
+gem "rubyzip", "~> 3.7.0", :require => "zip"
 
 # HTML encoding
 gem "htmlentities", "~> 4.4.2"
 
 # File Uploads
-gem "shrine", "~> 3.7.1"
+gem "shrine", "~> 3.10.2"
 gem "content_disposition", "~> 1.0.0"
-gem "aws-sdk-s3", "~> 1.225"
+gem "aws-sdk-s3", "~> 1.237"
 
 # Resizing image uploads
-gem "image_processing", "~> 2.0.2"
+gem "image_processing", "~> 2.2.0"
 gem "ruby-vips", "~> 2.3.0"
 
 # Image optimization/compression for file uploads
@@ -57,8 +57,8 @@ gem "simple_form", "~> 5.4.1"
 
 # Authentication
 gem "devise", "~> 5.0.4"
-gem "omniauth", "~> 2.1.4"
-gem "omniauth-google-oauth2", "~> 1.2.2"
+gem "omniauth", "~> 2.3.1"
+gem "omniauth-google-oauth2", "~> 1.2.3"
 
 # Fix for CVE-2015-9284: https://github.com/omniauth/omniauth/pull/809
 gem "omniauth-rails_csrf_protection", "~> 2.0.1"
@@ -77,7 +77,7 @@ gem "health-monitor-rails", "~> 12.9.0"
 gem "faraday"
 
 # Production logging
-gem "lograge", "~> 0.14.0"
+gem "lograge", "~> 0.15.1"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

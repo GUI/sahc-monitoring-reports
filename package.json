@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^7.2.0",
-    "@fortawesome/free-solid-svg-icons": "^7.2.0",
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@rails/ujs": "~7.1.600",
     "@uppy/core": "^5.2.0",
     "@uppy/dashboard": "^5.1.1",
@@ -14,17 +14,17 @@
     "datatables.net-bs5": "^2.3.8",
     "jquery": "^4.0.0",
     "jquery.dirtyforms": "^2.0.0",
-    "ky": "^2.0.2",
+    "ky": "^2.2.0",
     "rollbar": "^3.1.0"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.1.0",
+    "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.5.0",
-    "globals": "^17.6.0",
-    "sass": "^1.101.0",
-    "vite": "^8.0.16",
-    "vite-plugin-ruby": "^5.2.2"
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
+    "sass": "^1.107.1",
+    "vite": "^8.3.5",
+    "vite-plugin-ruby": "^5.2.6"
   },
   "scripts": {
     "lint": "eslint"
